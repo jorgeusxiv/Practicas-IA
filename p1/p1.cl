@@ -5,6 +5,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+<<<<<<< HEAD
 ;;; cosine-distance-rec (x y)
 ;;; Calcula la distancia coseno de un vector de forma recursiva
 ;;; Se asume que los dos vectores de entrada tienen la misma longitud.
@@ -18,6 +19,8 @@
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+=======
+>>>>>>> 8df8ecfd4efeb28489d720e2e8d2851c3b0a39c9
 ;;; producto-escalar-rec (x y)
 ;;; Calcula el producto escalar de forma recursiva
 ;;; Se asume que los dos vectores de entrada tienen la misma longitud.
@@ -34,18 +37,28 @@
        (prod-esc-rec (rest x) (rest y)))
     )
   )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; cosine-distance-mapcar
-;;; Calcula la distancia coseno de un vector usando mapcar
+;;; cosine-distance-rec (x y)
+;;; Calcula la distancia coseno de un vector de forma recursiva
 ;;; Se asume que los dos vectores de entrada tienen la misma longitud.
 ;;;
-;;; INPUT:  x: vector, representado como una lista
+;;; INPUT: x: vector, representado como una lista
 ;;;         y: vector, representado como una lista
 ;;; OUTPUT: distancia coseno entre x e y
 ;;;
-(defun cosine-distance-mapcar (x y)
+(defun cosine-distance-rec (x y)
+  (cond ((or (null x) (null y)) 0)
+        ((= 0 (* (prod-esc-rec x x) (prod-esc-rec y y))) 0)
+        (t (- 1 (/ (prod-esc-rec x y)
+                   (* (sqrt(prod-esc-rec x x))
+                      (sqrt(prod-esc-rec y y))
+                      )
+                   )
+              )
+           )
+    )
   )
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; producto-escalar-mapcar (x y)
@@ -60,6 +73,30 @@
   (defun prod-esc-mapcar (x y)
     (apply #'+ (mapcar #'* x y))
     )
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; cosine-distance-mapcar
+;;; Calcula la distancia coseno de un vector usando mapcar
+;;; Se asume que los dos vectores de entrada tienen la misma longitud.
+;;;
+;;; INPUT:  x: vector, representado como una lista
+;;;         y: vector, representado como una lista
+;;; OUTPUT: distancia coseno entre x e y
+;;;
+
+(defun cosine-distance-mapcar (x y)
+  (cond ((or (null x) (null y)) 0)
+        ((= 0 (* (prod-esc-mapcar x x) (prod-esc-mapcar y y))) 0)
+        (t (- 1 (/ (prod-esc-mapcar x y)
+                   (* (sqrt(prod-esc-mapcar x x))
+                      (sqrt(prod-esc-mapcar y y))
+                      )
+                   )
+              )
+           )
+    )
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; order-vectors-cosine-distance
