@@ -18,9 +18,7 @@
   (if (or (null x) (null y))
     0
     (+ (* (first x) (first y))
-       (prod-esc-rec (rest x) (rest y)))
-    )
-  )
+       (prod-esc-rec (rest x) (rest y)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; cosine-distance-rec (x y)
@@ -36,13 +34,7 @@
         ((= 0 (* (prod-esc-rec x x) (prod-esc-rec y y))) 0)
         (t (- 1 (/ (prod-esc-rec x y)
                    (* (sqrt(prod-esc-rec x x))
-                      (sqrt(prod-esc-rec y y))
-                      )
-                   )
-              )
-           )
-    )
-  )
+                      (sqrt(prod-esc-rec y y))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; producto-escalar-mapcar (x y)
@@ -56,17 +48,8 @@
 
 (defun prod-esc-mapcar (x y)
   (if (or (null x) (null y))
-<<<<<<< HEAD
   0
-  (apply #'+ (mapcar #'* x y))
-  )
-=======
-    0
-    (apply #'+ (mapcar #'* x y))
-  )
-)
->>>>>>> c467d45249bb6a2e56363c96b2f9cb58989f3b4a
-
+  (apply #'+ (mapcar #'* x y))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; cosine-distance-mapcar
@@ -83,13 +66,7 @@
         ((= 0 (* (prod-esc-mapcar x x) (prod-esc-mapcar y y))) 0)
         (t (- 1 (/ (prod-esc-mapcar x y)
                    (* (sqrt(prod-esc-mapcar x x))
-                      (sqrt(prod-esc-mapcar y y))
-                      )
-                   )
-              )
-           )
-    )
-  )
+                      (sqrt(prod-esc-mapcar y y))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; order-vectors-cosine-distance
