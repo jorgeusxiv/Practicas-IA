@@ -32,7 +32,6 @@
        (prod-esc-rec (rest x) (rest y)))
     )
   )
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; cosine-distance-mapcar
 ;;; Calcula la distancia coseno de un vector usando mapcar
@@ -45,6 +44,21 @@
 (defun cosine-distance-mapcar (x y)
   )
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; producto-escalar-mapcar (x y)
+;;; Calcula el producto escalar usando mapcar
+;;; Se asume que los dos vectores de entrada tienen la misma longitud.
+;;;
+;;; INPUT: x: vector, representado como una lista
+;;;         y: vector, representado como una lista
+;;; OUTPUT: producto escalar entre x e y
+;;;
+
+  (defun prod-esc-mapcar (x y)
+    (apply #'+ (mapcar #'* x y))
+    )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; order-vectors-cosine-distance
 ;;; Devuelve aquellos vectores similares a una categoria
@@ -56,6 +70,8 @@
 ;;;         categoria es superior al nivel de confianza ,
 ;;;         ordenados
 ;;;
+
+
 (defun order-vectors-cosine-distance (vector lst-of-vectors &optional (confidence-level 0))
   )
 
