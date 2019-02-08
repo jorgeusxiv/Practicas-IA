@@ -53,9 +53,12 @@
 ;;; OUTPUT: producto escalar entre x e y
 ;;;
 
-  (defun prod-esc-mapcar (x y)
+(defun prod-esc-mapcar (x y)
+  (if (or (null x) (null y))
+    0
     (apply #'+ (mapcar #'* x y))
-    )
+  )
+)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
