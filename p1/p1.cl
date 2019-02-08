@@ -3,24 +3,7 @@
 ;; Javier Martinez Rubio javier.martinezrubio@estudiante.uam.es
 ;; Jorge Santisteban Rivas jorge.santisteban@estudiante.uam.es
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-<<<<<<< HEAD
-;;; cosine-distance-rec (x y)
-;;; Calcula la distancia coseno de un vector de forma recursiva
-;;; Se asume que los dos vectores de entrada tienen la misma longitud.
-;;;
-;;; INPUT: x: vector, representado como una lista
-;;;         y: vector, representado como una lista
-;;; OUTPUT: distancia coseno entre x e y 
-;;;
-(defun cosine-distance-rec (x y)
-
-  )
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-=======
->>>>>>> 8df8ecfd4efeb28489d720e2e8d2851c3b0a39c9
 ;;; producto-escalar-rec (x y)
 ;;; Calcula el producto escalar de forma recursiva
 ;;; Se asume que los dos vectores de entrada tienen la misma longitud.
