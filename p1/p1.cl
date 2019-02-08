@@ -82,9 +82,10 @@
 ;;;
 
 
-(defun order-vectors-cosine-distance (vector-ref vector-insert ord-lst-of-vectors)
-  (if )
-  )
+(defun order-lst-vectors(vector-ref vector-insert ord-lst-of-vectors)
+  (cond ((null ord-lst-of-vector) vector-insert)
+        ((> cosine-distance-mapcar(vector-ref vector-insert) cosine-distance-mapcar(vector-ref (first ord-lst-of-vectors))) (cons 'vector-insert 'ord-lst-of-vectors))
+        (t (order-vectors-lst-vectors(vector-ref vector-insert (rest ord-lst-of-vectors))))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; order-vectors-cosine-distance
 ;;; Devuelve aquellos vectores similares a una categoria
