@@ -11,7 +11,7 @@
 ;;;
 ;;; INPUT: x: vector, representado como una lista
 ;;;         y: vector, representado como una lista
-;;; OUTPUT: distancia coseno entre x e y
+;;; OUTPUT: distancia coseno entre x e y 
 ;;;
 (defun cosine-distance-rec (x y)
 
