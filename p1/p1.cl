@@ -3,6 +3,7 @@
 ;; Javier Martinez Rubio javier.martinezrubio@estudiante.uam.es
 ;; Jorge Santisteban Rivas jorge.santisteban@estudiante.uam.es
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; producto-escalar-rec (x y)
 ;;; Calcula el producto escalar de forma recursiva
@@ -53,9 +54,11 @@
 ;;; OUTPUT: producto escalar entre x e y
 ;;;
 
-  (defun prod-esc-mapcar (x y)
-    (apply #'+ (mapcar #'* x y))
-    )
+(defun prod-esc-mapcar (x y)
+  (if (or (null x) (null y))
+  0
+  (apply #'+ (mapcar #'* x y))
+  )
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
