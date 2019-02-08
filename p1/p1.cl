@@ -68,6 +68,23 @@
                    (* (sqrt(prod-esc-mapcar x x))
                       (sqrt(prod-esc-mapcar y y))))))))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; insertar-en-orden
+;;; Ordena las listas segun su nivel de confianza
+;;; INPUT:  vector-ref: vector que representa a una categoria,
+;;;                 representado como una lista
+;;;         vector-insert: vector a insertar
+;;;         ord-lst-of-vectors: nuevo vector de vectores ordenados
+;;; OUTPUT: Vectores cuya semejanza con respecto a la
+;;;         categoria es superior al nivel de confianza ,
+;;;         ordenados
+;;;
+
+
+(defun order-vectors-cosine-distance (vector-ref vector-insert ord-lst-of-vectors)
+  (if )
+  )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; order-vectors-cosine-distance
 ;;; Devuelve aquellos vectores similares a una categoria
