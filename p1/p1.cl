@@ -12,6 +12,25 @@
 ;;; OUTPUT: distancia coseno entre x e y
 ;;;
 (defun cosine-distance-rec (x y)
+
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; producto-escalar-rec (x y)
+;;; Calcula el producto escalar de forma recursiva
+;;; Se asume que los dos vectores de entrada tienen la misma longitud.
+;;;
+;;; INPUT: x: vector, representado como una lista
+;;;         y: vector, representado como una lista
+;;; OUTPUT: producto escalar entre x e y
+;;;
+
+(defun prod-esc-rec (x y)
+  (if (or (null x) (null y))
+    0
+    (+ (* (first x) (first y))
+       (prod-esc-rec (rest x) (rest y)))
+    )
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -162,7 +181,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; combine-list-of-lsts
 ;;; Calcula todas las posibles disposiciones de elementos
-;;; pertenecientes a N listas de forma que en cada disposicion 
+;;; pertenecientes a N listas de forma que en cada disposicion
 ;;; aparezca unicamente un elemento de cada lista
 ;;;
 ;;; INPUT: lstolsts: lista de listas
@@ -228,7 +247,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; truth-tree
-;;; Recibe una expresion y construye su arbol de verdad para 
+;;; Recibe una expresion y construye su arbol de verdad para
 ;;; determinar si es SAT o UNSAT
 ;;;
 ;;; INPUT  : fbf - Formula bien formada (FBF) a analizar.
