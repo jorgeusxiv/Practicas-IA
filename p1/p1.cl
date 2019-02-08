@@ -56,9 +56,16 @@
 
 (defun prod-esc-mapcar (x y)
   (if (or (null x) (null y))
+<<<<<<< HEAD
   0
   (apply #'+ (mapcar #'* x y))
   )
+=======
+    0
+    (apply #'+ (mapcar #'* x y))
+  )
+)
+>>>>>>> c467d45249bb6a2e56363c96b2f9cb58989f3b4a
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
