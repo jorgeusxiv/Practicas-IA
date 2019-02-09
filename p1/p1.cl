@@ -104,7 +104,7 @@
 
 
 (defun order-vectors-cosine-distance (vector lst-of-vectors &optional (confidence-level 0))
-  (if (> confidence-level
+  (if (< confidence-level
          (cosine-distance-mapcar vector (first lst-of-vectors)))
     (if (null (rest lst-of-vectors))
       (order-lst-vectors vector (first lst-of-vectors) '())
