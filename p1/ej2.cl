@@ -14,6 +14,7 @@
 ;;; OUTPUT: estimacion del cero de f o NIL si no converge
 ;;;
 ( defun newton (f df max-iter x0 &optional (tol 0.001))
+  merg
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
