@@ -69,5 +69,4 @@
   ;;; OUTPUT: las raices que se encuentren para cada semilla
   ;;;
   (defun list-not-nil-roots-newton (f df max-iter semillas &optional ( tol 0.001))
-  )
-  
+    (remove nil (all-roots-newton f df max-iter semillas tol)))
