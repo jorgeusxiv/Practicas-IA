@@ -104,7 +104,7 @@
 
 
 (defun order-vectors-cosine-distance (vector lst-of-vectors &optional (confidence-level 0))
-  (if (<= (- 1 confidence-level)
+  (if (>= (- 1 confidence-level)
          (cosine-distance-mapcar vector (first lst-of-vectors)))
     (if (null (rest lst-of-vectors))
       (order-lst-vectors vector (first lst-of-vectors) '())
@@ -128,8 +128,16 @@
 ;;;         de menor distancia , junto con el valor de dicha distancia
 ;;;
 ( defun get-vectors-category (categories texts distance-measure)
-  )
+  (mapcar #'(lambda(x) (get-text-category categories x distance-measure (first categories))) texts))
 
+
+(defun get-text-category (categories text distance-measure min-category)
+  (if (null categories)
+     (list (first min-category) (funcall distance-measure text min-category))
+    (if (< (funcall distance-measure (first categories) text)
+           (funcall distance-measure min-category text))
+      (get-text-category (rest categories) text distance-measure (first categories))
+      (get-text-category (rest categories) text distance-measure min-category))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

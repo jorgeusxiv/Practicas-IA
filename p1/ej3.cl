@@ -14,7 +14,7 @@
 (defun combine-elt-lst (elt lst)
   (cond ((or (null elt) (null lst))
               nil)
-        (t (mapcar #'(lambda(x) (cons elt x)) lst))))
+        (t (mapcar #'(lambda(x) (list elt x)) lst))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; combine-lst-lst
@@ -29,6 +29,33 @@
          nil)
         (t (mapcan #'(lambda(x) (combine-elt-lst x lst2)) lst1))))
 
+;;FUNCIONES AUXILIARES PARA EL 3.3;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; combine-cons-elt-lst
+;;; Combina un elemento dado con todos los elementos de una lista
+;;;
+;;; INPUT: elem: elemento a combinar
+;;;        lst: lista con la que se quiere combinar el elemento
+;;;
+;;; OUTPUT: lista con las combinacion del elemento con cada uno de los
+;;;         de la lista
+(defun combine-cons-elt-lst (elt lst)
+  (cond ((or (null elt) (null lst))
+              nil)
+        (t (mapcar #'(lambda(x) (cons elt x)) lst))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; combine-cons-lst-lst
+;;; Calcula el producto cartesiano de dos listas
+;;;
+;;; INPUT: lst1: primera lista
+;;;        lst2: segunda lista
+;;;
+;;; OUTPUT: producto cartesiano de las dos listas
+(defun combine-cons-lst-lst (lst1 lst2)
+  (cond ((or (null lst1) (null lst2))
+         nil)
+        (t (mapcan #'(lambda(x) (combine-elt-lst x lst2)) lst1))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; combine-list-of-lsts
@@ -42,5 +69,5 @@
 (defun combine-list-of-lsts (lstolsts)
   (cond ((null lstolsts)
          (list nil))
-        (t (combine-lst-lst (first lstolsts)
+        (t (combine-cons-lst-lst (first lstolsts)
                             (combine-list-of-lsts (rest lstolsts))))))
