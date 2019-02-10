@@ -55,18 +55,18 @@
 (defun all-roots-newton (f df max-iter semillas &optional ( tol 0.001))
   (mapcar #'(lambda(x) (newton f df max-iter x tol)) semillas))
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;; list-not-nil-newton
-  ;;; Prueba con distintas semillas iniciales y devuelve las raices
-  ;;; encontradas por Newton para dichas semillas
-  ;;;
-  ;;; INPUT: f: funcion de la que se desea encontrar un cero
-  ;;;        df: derivada de f
-  ;;;        max-iter: maximo numero de iteraciones
-  ;;;        semillas: semillas con las que invocar a Newton
-  ;;;        tol : tolerancia para convergencia ( parametro opcional )
-  ;;;
-  ;;; OUTPUT: las raices que se encuentren para cada semilla
-  ;;;
-  (defun list-not-nil-roots-newton (f df max-iter semillas &optional ( tol 0.001))
-    (remove nil (all-roots-newton f df max-iter semillas tol)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; list-not-nil-newton
+;;; Prueba con distintas semillas iniciales y devuelve las raices
+;;; encontradas por Newton para dichas semillas
+;;;
+;;; INPUT: f: funcion de la que se desea encontrar un cero
+;;;        df: derivada de f
+;;;        max-iter: maximo numero de iteraciones
+;;;        semillas: semillas con las que invocar a Newton
+;;;        tol : tolerancia para convergencia ( parametro opcional )
+;;;
+;;; OUTPUT: las raices que se encuentren para cada semilla
+;;;
+(defun list-not-nil-roots-newton (f df max-iter semillas &optional ( tol 0.001))
+    (mapcan #'(lambda(x) (if(null x) nil (list x))) (all-roots-newton f df max-iter semillas tol)))
