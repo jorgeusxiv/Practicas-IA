@@ -14,7 +14,7 @@
 (defun combine-elt-lst (elt lst)
   (cond ((or (null elt) (null lst))
               nil)
-        (t (mapcar #'(lambda(x) (list elt x)) lst))))
+        (t (mapcar #'(lambda(x) (cons elt x)) lst))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; combine-lst-lst
@@ -40,4 +40,7 @@
 ;;;
 ;;; OUTPUT: lista con todas las posibles combinaciones de elementos
 (defun combine-list-of-lsts (lstolsts)
-  )
+  (cond ((null lstolsts)
+         (list nil))
+        (t (combine-lst-lst (first lstolsts)
+                            (combine-list-of-lsts (rest lstolsts))))))
