@@ -14,9 +14,7 @@
 (defun combine-elt-lst (elt lst)
   (cond ((or (null elt) (null lst))
               nil)
-        ((null (rest lst))
-              (list elt (first lst)))
-        (t (cons (list elt (first lst)) (combine-elt-lst elt (rest lst))))))
+        (t (mapcar #'(lambda(x) (list elt x)) lst))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; combine-lst-lst
@@ -29,9 +27,7 @@
 (defun combine-lst-lst (lst1 lst2)
   (cond ((or (null lst1) (null lst2))
          nil)
-        ((null (rest lst1))
-         (combine-elt-lst (first lst1) lst2))
-        (t (cons (combine-elt-lst (first lst1) lst2) (combine-lst-lst (rest lst1) lst2)))))
+        (t (mapcan #'(lambda(x) (combine-elt-lst x lst2)) lst1))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
