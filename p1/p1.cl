@@ -70,7 +70,7 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; insertar-en-orden
+;;; order-lst-vectors
 ;;; Ordena las listas segun su nivel de confianza
 ;;; INPUT:  vector-ref: vector que representa a una categoria,
 ;;;                 representado como una lista
