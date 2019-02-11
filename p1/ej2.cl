@@ -69,4 +69,4 @@
 ;;; OUTPUT: las raices que se encuentren para cada semilla
 ;;;
 (defun list-not-nil-roots-newton (f df max-iter semillas &optional ( tol 0.001))
-    (mapcan #'(lambda(x) (if(null x) nil (list x))) (all-roots-newton f df max-iter semillas tol)))
+    (mapcan #'(lambda(x) (unless (null x) (list x))) (all-roots-newton f df max-iter semillas tol)))
