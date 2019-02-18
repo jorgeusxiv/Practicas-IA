@@ -369,6 +369,7 @@
 ;;;          N   - FBF es UNSAT
 ;;;
 (defun truth-tree (fbf)
+  (paco)
   )
 
 
