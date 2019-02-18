@@ -369,8 +369,91 @@
 ;;;          N   - FBF es UNSAT
 ;;;
 (defun truth-tree (fbf)
-  (paco)
+
   )
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; de-morgan-or
+;;; Recibe una expresion y aplica la regla de derivacion adecuada
+;;;
+;;; INPUT  : fbf - Formula bien formada (FBF) a analizar.
+;;; OUTPUT : fbf-modified FBF modificada
+;;;
+
+(defun de-morgan-or (fbf)
+  (list +and+ (list +not+ (second fbf)) (list +not+ (third fbf))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; de-morgan-and
+;;; Recibe una expresion y aplica la regla de derivacion adecuada
+;;;
+;;; INPUT  : fbf - Formula bien formada (FBF) a analizar.
+;;; OUTPUT : fbf-modified FBF modificada
+;;;
+
+(defun de-morgan-and (fbf)
+  (list +or+ (list +not+ (second fbf)) (list +not+ (third fbf))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; neg-conditional
+;;; Recibe una expresion y aplica la regla de derivacion adecuada
+;;;
+;;; INPUT  : fbf - Formula bien formada (FBF) a analizar.
+;;; OUTPUT : fbf-modified FBF modificada
+;;;
+
+(defun neg-conditional(fbf)
+  (list +and+ (second fbf) (list +not+ (third fbf))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; neg-bicond
+;;; Recibe una expresion con una doble condicion y aplica la regla de derivacion adecuada
+;;;
+;;; INPUT  : fbf - Formula bien formada (FBF) a analizar.
+;;; OUTPUT : fbf-modified FBF sin doble condicional
+;;;
+
+(defun neg-bicond(fbf)
+  (list +or+ (list +and+ (second fbf) (list +not+ (third fbf)))
+        (list +and+ (list +not+ (second fbf)) (third fbf))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; conditional
+;;; Recibe una expresion con una condicion y aplica la regla de derivacion adecuada
+;;;
+;;; INPUT  : fbf - Formula bien formada (FBF) a analizar.
+;;; OUTPUT : fbf-modified FBF sin condicional
+;;;
+
+(defun conditional(fbf)
+  (list +or+ (list +not+ (second fbf)) (third fbf)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; bicond
+;;; Recibe una expresion con una doble condicion y aplica la regla de derivacion adecuada
+;;;
+;;; INPUT  : fbf - Formula bien formada (FBF) a analizar.
+;;; OUTPUT : fbf-modified FBF sin doble condicional
+;;;
+
+(defun bicond(fbf)
+  (list +or+ (list +and+ (second fbf) (third fbf))
+        (list +and+ (list +not+ (second fbf)) (list +not+ (third fbf)))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; double-negation
+;;; Recibe una expresion con una doble negacion y aplica la regla de derivacion adecuada
+;;;
+;;; INPUT  : fbf - Formula bien formada (FBF) a analizar.
+;;; OUTPUT : fbf-modified FBF sin doble condicional
+;;;
+
+(defun double-negation(fbf)
+  (second fbf))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
