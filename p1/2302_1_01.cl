@@ -374,6 +374,36 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; convert
+;;; Recibe una expresion y la convierte en una expresion con and's y or's
+;;;
+;;; INPUT  : fbf - Formula bien formada (FBF) a analizar.
+;;; OUTPUT : fbf-modified FBF modificada
+;;;
+
+(defun convert (fbf)
+  (cond ((bicond-connector-p (first fbf)) (convert (bicond fbf)))
+        ((cond-connector-p (first fbf)) (convert (conditional fbf)))
+        ((unary-connector-p (first fbf))
+              (cond ((bicond-connector-p (first (rest fbf)))
+                     (convert (neg-bicond (rest fbf))))
+                    ((cond-connector-p (first (rest fbf)))
+                     (convert (neg-conditional (rest fbf))))
+                    ((eql +or+ (first (rest fbf)))
+                     (convert (de-morgan-or (rest fbf))))
+                    ((eql +and+ (first (rest fbf)))
+                     (convert (de-morgan-and (rest fbf))))
+                    ((unary-connector-p (first (rest fbf)))
+                     (convert (double-negation (rest fbf))))
+                    (t fbf)))
+        ((or (n-ary-connector-p (first fbf)) (literal-p (first fbf)))
+         (cons (first fbf) (convert (rest fbf))))
+        ((and (listp (first fbf)) (first fbf)) (convert (first fbf)))
+        (t fbf)
+    )
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; de-morgan-or
 ;;; Recibe una expresion y aplica la regla de derivacion adecuada
 ;;;
