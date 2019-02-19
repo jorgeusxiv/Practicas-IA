@@ -396,8 +396,8 @@
                     ((unary-connector-p (first (rest fbf)))
                      (convert (double-negation (rest fbf))))
                     (t fbf)))
-        ((or (n-ary-connector-p (first fbf)) (literal-p (first fbf)))
-         (cons (first fbf) (convert (rest fbf))))
+        ((and (rest fbf) (or (n-ary-connector-p (first fbf)) (literal-p (first fbf))))
+         (list (first fbf) (convert (rest fbf))))
         ((and (listp (first fbf)) (first fbf)) (convert (first fbf)))
         (t fbf)
     )
@@ -412,7 +412,9 @@
 ;;;
 
 (defun de-morgan-or (fbf)
-  (list +and+ (list +not+ (second fbf)) (list +not+ (third fbf))))
+  (cond ((null (rest fbf)) (list (list +not+ (first fbf))))
+        ((n-ary-connector-p (first fbf)) (cons +and+ (de-morgan-or (rest fbf))))
+        (t (append (list (list +not+ (first fbf))) (de-morgan-or (rest fbf))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -424,7 +426,9 @@
 ;;;
 
 (defun de-morgan-and (fbf)
-  (list +or+ (list +not+ (second fbf)) (list +not+ (third fbf))))
+(cond ((null (rest fbf)) (list (list +not+ (first fbf))))
+      ((n-ary-connector-p (first fbf)) (cons +or+ (de-morgan-or (rest fbf))))
+      (t (append (list (list +not+ (first fbf))) (de-morgan-or (rest fbf))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; neg-conditional
