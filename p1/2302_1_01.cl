@@ -382,7 +382,7 @@
 ;;;
 
 (defun convert (fbf)
-  (cond ((literal-p fbf) fbf)
+  (cond ((or (literal-p fbf) (connector-p fbf)) fbf)
         ((bicond-connector-p (first fbf)) (convert (bicond fbf)))
         ((cond-connector-p (first fbf)) (convert (conditional fbf)))
         ((unary-connector-p (first fbf))
@@ -397,14 +397,8 @@
                     ((unary-connector-p (first (first (rest fbf))))
                      (convert (double-negation (second fbf))))
                     (t fbf)))
-        ((and (rest fbf) (or (n-ary-connector-p (first fbf)) (literal-p (first fbf))))
-         (list (first fbf) (convert (rest fbf))))
-        ((and (listp (first fbf)) (first fbf))
-         (if (rest fbf)
-           (list (convert (first fbf)) (convert (rest fbf)))
-           (convert (first fbf))))
-        ((and (listp fbf) (atom (first fbf)))
-         (first fbf)) ;;UN POCO REDUNDANTE Y RARO
+        ((n-ary-connector-p (first fbf))
+         (mapcar #'(lambda(x) (convert x)) fbf))
         (t fbf)
     )
   )
@@ -494,6 +488,7 @@
 
 (defun double-negation(fbf)
   (second fbf))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
