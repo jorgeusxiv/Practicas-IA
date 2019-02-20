@@ -370,7 +370,7 @@
 ;;;
 (defun truth-tree (fbfs)
 
-  (truth-tree-aux nil (expand fbfs))
+  (truth-tree-aux (expand fbfs))
 
   )
 
@@ -384,7 +384,15 @@
 ;;;          N   - FBFs es UNSAT
 ;;;
 
-(defun truth-tree-aux (lst-atoms fbfs)
+(defun truth-tree-aux (fbfs)
+
+  (cond ((eql +or+ (first fbfs))
+         (mapcar #'(lambda(x) (truth-tree-aux x)) (rest fbfs)))
+        ((eql +and+ (first fbfs))
+         (list (mapcar #'(lambda(x) (truth-tree-aux x)) (rest fbfs))))
+        ((literal-p (first fbfs)) (first fbfs))
+        (t fbfs)
+    )
 
   )
 
