@@ -364,13 +364,30 @@
 ;;; Recibe una expresion y construye su arbol de verdad para
 ;;; determinar si es SAT o UNSAT
 ;;;
-;;; INPUT  : fbf - Formula bien formada (FBF) a analizar.
-;;; OUTPUT : T   - FBF es SAT
-;;;          N   - FBF es UNSAT
+;;; INPUT  : fbfs - Formula bien formada (FBF) a analizar.
+;;; OUTPUT : T   - FBFs es SAT
+;;;          N   - FBFs es UNSAT
 ;;;
-(defun truth-tree (fbf)
+(defun truth-tree (fbfs)
+
+  (truth-tree-aux nil (expand fbfs))
 
   )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; truth-tree-aux
+;;; Funcion auxiliar que recibe una expresion y construye su arbol de verdad para
+;;; determinar si es SAT o UNSAT
+;;;
+;;; INPUT  : fbfs - Formula bien formada (FBF) a analizar.
+;;; OUTPUT : T   - FBFs es SAT
+;;;          N   - FBFs es UNSAT
+;;;
+
+(defun truth-tree-aux (lst-atoms fbfs)
+
+  )
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -402,6 +419,19 @@
         (t fbf)
     )
   )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; expand
+;;; Recibe la base de conocimiento y la convierte en una expresion con and's y or's
+;;;
+;;; INPUT  : fbfs - Formula bien formada (FBF) a analizar.
+;;; OUTPUT : fbfs-modified FBF modificada
+;;;
+
+(defun expand (fbfs)
+  (cons +and+ (mapcar #'(lambda(x) (convert x)) fbfs)))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; de-morgan-or
