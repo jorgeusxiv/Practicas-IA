@@ -368,16 +368,11 @@
 ;;; OUTPUT : T   - FBFs es SAT
 ;;;          N   - FBFs es UNSAT
 ;;;
+
 (defun truth-tree (fbfs)
 
-  (truth-tree-aux nil (expand fbfs))
+  (truth-tree-check (truth-tree-aux nil (expand fbfs)))
 
-  )
-
-(defun contradiction (fbf)
-  (if (eql fbf 3)
-    nil
-    t) ;; CLAVE
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -403,6 +398,81 @@
     )
 
   )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; check-lst-lst
+;;; Recibe una lista y comprueba si es una lista de listas
+;;;
+;;; INPUT  : list - lista a analizar
+;;; OUTPUT : T   - no es una lista de listas
+;;;          N   - es una lista de listas
+;;;
+
+(defun check-lst-lst (lst)
+  (if (null lst)
+    t
+    (if (literal-p (first lst))
+      (check-lst-lst (rest lst))
+      nil)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; truth-tree-check
+;;; Recibe una expresion y comprueba si hay contradicciones
+;;;
+;;; INPUT  : lst - Expresion a analizar.
+;;; OUTPUT : T   - No hay contracciones
+;;;          N   - Hay contradicciones
+;;;
+
+(defun truth-tree-check (lst)
+  (cond ((null lst) t)
+        ((check-lst-lst lst)
+         (contradiction lst))
+        ((contradiction (first lst))
+         (truth-tree-check (rest lst)))
+    )
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; contradiction
+;;; Recibe una expresion y devuelve si es contradictoria o no
+;;;
+;;; INPUT  : lst - lst a analizar.
+;;; OUTPUT : T   - No es contradictoria
+;;;          N   - Es contradictoria
+;;;
+
+(defun contradiction (lst)
+  (cond ((null lst) t)
+        ((contradiction-aux (first lst) lst)
+            (contradiction (rest lst)))
+        (t nil)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; contradiction-aux
+;;; Funcion auxiliar de contradiction
+;;;
+;;; INPUT  : lst - lst a analizar.
+;;;          frst - elemento a comparar
+;;; OUTPUT : T   - No es contradictoria
+;;;          N   - Es contradictoria
+;;;
+
+(defun contradiction-aux (frst lst)
+  (cond ((null lst) t)
+        ((negative-literal-p frst)
+            (if (eql (second frst) (second lst))
+              nil
+              (contradiction-aux frst (rest lst))))
+        ((and (positive-literal-p frst) (negative-literal-p (second lst)))
+            (if (eql frst (second (second lst)))
+              nil
+              (contradiction-aux frst (rest lst))))
+        (t (contradiction-aux frst (rest lst)))
+    )
+  )
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; convert
 ;;; Recibe una expresion y la convierte en una expresion con and's y or's
@@ -442,10 +512,7 @@
 ;;;
 
 (defun expand (fbfs)
-  (if (literal-p fbfs)
-    (list +and+ fbfs)
-    (cons +and+ (mapcar #'(lambda(x) (convert x)) fbfs))))
-
+    (cons +and+ (mapcar #'(lambda(x) (convert x)) fbfs)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
