@@ -370,7 +370,13 @@
 ;;;
 (defun truth-tree (fbfs)
 
-  (truth-tree-aux (expand fbfs))
+  (truth-tree-aux nil (expand fbfs))
+
+  )
+
+(defun contradiction (fbf)
+
+  
 
   )
 
@@ -384,7 +390,19 @@
 ;;;          N   - FBFs es UNSAT
 ;;;
 
+(defun truth-tree-aux (lst fbfs)
 
+  (cond ((eql +and+ fbfs) lst)
+        ((literal-p fbfs)
+        (truth-tree-aux (cons fbfs lst) +and+))
+        ((eql +and+ (first fbfs))
+         (mapcan #'(lambda(x) (truth-tree-aux lst x)) (rest fbfs)))
+        ((eql +or+ (first fbfs))
+         (mapcar #'(lambda(x) (truth-tree-aux lst x)) (rest fbfs)))
+        (t nil)
+    )
+
+  )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; convert
 ;;; Recibe una expresion y la convierte en una expresion con and's y or's
@@ -424,7 +442,9 @@
 ;;;
 
 (defun expand (fbfs)
-  (cons +and+ (mapcar #'(lambda(x) (convert x)) fbfs)))
+  (if (literal-p fbfs)
+    (list +and+ fbfs)
+    (cons +and+ (mapcar #'(lambda(x) (convert x)) fbfs))))
 
 
 
