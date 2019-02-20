@@ -1,0 +1,12 @@
+(defun truth-tree-aux (fbfs)
+
+  (cond ((literal-p fbfs) fbfs)
+        ((eql +or+ (first fbfs))
+         (mapcar #'(lambda(x) (truth-tree-aux x)) (rest fbfs)))
+        ((eql +and+ (first fbfs))
+         (mapcar #'(lambda(x) (truth-tree-aux x)) (rest fbfs)))
+        ((literal-p (first fbfs)) (first fbfs))
+        (t fbfs)
+    )
+
+  )
