@@ -375,6 +375,15 @@
 
   )
 
+(defun insert-elt (elt lst)
+  (cond ((null lst) nil)
+        ((negative-literal-p elt)
+         (cons (list elt (first lst)) (insert-elt elt (rest lst))))
+        (t (cons (cons elt (first lst)) (insert-elt elt (rest lst))))
+    )
+  )
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; truth-tree-aux
 ;;; Funcion auxiliar que recibe una expresion y construye su arbol de verdad para
@@ -389,9 +398,14 @@
 
   (cond ((eql +and+ fbfs) lst)
         ((literal-p fbfs)
-        (truth-tree-aux (cons fbfs lst) +and+))
+         (if (null lst)
+           (truth-tree-aux fbfs +and+)
+           (truth-tree-aux (insert-elt fbfs lst) +and+)))
         ((eql +and+ (first fbfs))
-         (mapcan #'(lambda(x) (truth-tree-aux lst x)) (rest fbfs)))
+         (if (null (second fbfs))
+             lst
+             (truth-tree-aux (truth-tree-aux lst (second fbfs)) (expand (cddr fbfs))))
+           )
         ((eql +or+ (first fbfs))
          (mapcar #'(lambda(x) (truth-tree-aux lst x)) (rest fbfs)))
         (t nil)
