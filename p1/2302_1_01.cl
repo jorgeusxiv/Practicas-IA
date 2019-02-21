@@ -439,11 +439,12 @@
 ;;;
 
 (defun truth-tree-check (lst)
-  (cond ((null lst) t)
+  (cond ((null lst) nil)
         ((check-lst-lst lst)
          (contradiction lst))
-        ((contradiction (first lst))
+        ((null (contradiction (first lst)))
          (truth-tree-check (rest lst)))
+        (t t)
     )
   )
 
@@ -459,7 +460,7 @@
 (defun contradiction (lst)
   (cond ((null lst) t)
         ((contradiction-aux (first lst) lst)
-            (contradiction (rest lst)))
+          (contradiction (rest lst)))
         (t nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -526,9 +527,7 @@
 ;;;
 
 (defun expand (fbfs)
-    (if (check-lst-lst fbfs)
-      (cons +and+ (convert fbfs))
-    (cons +and+ (mapcar #'(lambda(x) (convert x)) fbfs))))
+    (cons +and+ (mapcar #'(lambda(x) (convert x)) fbfs)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
