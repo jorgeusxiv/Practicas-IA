@@ -526,7 +526,9 @@
 ;;;
 
 (defun expand (fbfs)
-    (cons +and+ (mapcar #'(lambda(x) (convert x)) fbfs)))
+    (if (check-lst-lst fbfs)
+      (cons +and+ (convert fbfs))
+    (cons +and+ (mapcar #'(lambda(x) (convert x)) fbfs))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
