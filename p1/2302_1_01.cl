@@ -377,7 +377,7 @@
 
 (defun insert-elt (elt lst)
   (cond ((null lst) nil)
-        ((negative-literal-p elt)
+        ((literal-p (first lst))
          (cons (list elt (first lst)) (insert-elt elt (rest lst))))
         (t (cons (cons elt (first lst)) (insert-elt elt (rest lst))))
     )
@@ -399,7 +399,7 @@
   (cond ((eql +and+ fbfs) lst)
         ((literal-p fbfs)
          (if (null lst)
-           (truth-tree-aux fbfs +and+)
+           (truth-tree-aux (list fbfs) +and+)
            (truth-tree-aux (insert-elt fbfs lst) +and+)))
         ((eql +and+ (first fbfs))
          (if (null (second fbfs))
