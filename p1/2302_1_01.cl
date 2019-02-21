@@ -370,8 +370,8 @@
 ;;;
 
 (defun truth-tree (fbfs)
-
-  (truth-tree-check (truth-tree-aux nil (expand fbfs)))
+  (if (null (first fbfs)) nil
+  (truth-tree-check (truth-tree-aux nil (expand fbfs))))
 
   )
 
