@@ -440,9 +440,10 @@
 
 (defun truth-tree-check (lst)
   (cond ((null lst) nil)
+        ((literal-p lst) t)
         ((check-lst-lst lst)
          (contradiction lst))
-        ((null (contradiction (first lst)))
+        ((null (truth-tree-check (first lst)))
          (truth-tree-check (rest lst)))
         (t t)
     )
