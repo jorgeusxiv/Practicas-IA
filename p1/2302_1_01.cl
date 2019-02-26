@@ -389,9 +389,9 @@
 ;;; Funcion auxiliar que recibe una expresion y construye su arbol de verdad para
 ;;; determinar si es SAT o UNSAT
 ;;;
-;;; INPUT  : fbfs - Formula bien formada (FBF) a analizar.
-;;; OUTPUT : T   - FBFs es SAT
-;;;          N   - FBFs es UNSAT
+;;; INPUT  : fbfs - Formulas bien formada (FBF) que forman una base
+;;;          lst - lista de atomos
+;;; OUTPUT : literals - Listas de atomos que habrá que analizar después
 ;;;
 
 (defun truth-tree-aux (lst fbfs)
@@ -555,8 +555,8 @@
 
 (defun de-morgan-and (fbf)
 (cond ((null (rest fbf)) (list (list +not+ (first fbf))))
-      ((n-ary-connector-p (first fbf)) (cons +or+ (de-morgan-or (rest fbf))))
-      (t (append (list (list +not+ (first fbf))) (de-morgan-or (rest fbf))))))
+      ((n-ary-connector-p (first fbf)) (cons +or+ (de-morgan-and (rest fbf))))
+      (t (append (list (list +not+ (first fbf))) (de-morgan-and (rest fbf))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; neg-conditional
