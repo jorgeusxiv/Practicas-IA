@@ -633,8 +633,26 @@
 ;;; OUTPUT: camino mas corto entre dos nodos
 ;;;         nil si no lo encuentra
 
-(defun bfs-improved (end queue net)
-  )
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ;; B r e a d t h - f i r s t - s e a r c h in graphs
+; ;;
+( defun bfs-improved ( end queue net rpt-lst)
+  ( if ( null queue ) '()
+    ( let* (( path ( first queue ))
+      ( node ( first path )))
+      ( if ( eql node end )
+        ( reverse path )
+        (if (null (find node rpt-lst))
+            (bfs-improved end (append (rest queue) (new-paths path node net)) net (cons node rpt-lst))
+          (bfs-improved end (rest queue) net rpt-lst))))))
 
-(defun shortest-path-improved (end queue net)
-  )
+( defun new-paths ( path node net )
+  ( mapcar #'( lambda ( n ) (cons n path )) ( rest ( assoc node net ))))
+
+
+( defun shortest-path-improved ( start end net rpt-lst)
+  ( bfs-improved end ( list ( list start )) net rpt-lst))
+; ;;
+
+
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

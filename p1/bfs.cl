@@ -13,6 +13,10 @@
 
 ( defun new-paths ( path node net )
   ( mapcar #'( lambda ( n ) (cons n path )) ( rest ( assoc node net ))))
+
+
+  ( defun shortest-path ( start end net )
+  ( bfs end ( list ( list start )) net ))
 ; ;;
 
 
