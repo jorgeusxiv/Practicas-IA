@@ -1,4 +1,4 @@
-quitar dobles comprobaciones en el 1
+
 poner formula aparte en el 1
 para el prod-escalar x x y y poner let
 pares de distancia-vector en el 1.2
