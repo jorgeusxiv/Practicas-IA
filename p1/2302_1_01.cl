@@ -30,10 +30,16 @@
 ;;; OUTPUT: distancia coseno entre x e y
 ;;;
 (defun cosine-distance-rec (x y)
-  (if (= 0 (* (prod-esc-rec x x) (prod-esc-rec y y))) 0
-        (- 1 (/ (prod-esc-rec x y)
+  (cond ((= 0 (* (prod-esc-rec x x) (prod-esc-rec y y))) 0)
+        (t (- 1 (/ (prod-esc-rec x y)
                    (* (sqrt(prod-esc-rec x x))
-                      (sqrt(prod-esc-rec y y)))))))
+                      (sqrt(prod-esc-rec y y))))))))
+
+
+(defun formula-dst (x y)
+  (-1 (/ (prod-esc-rec x y)
+             (* (sqrt(prod-esc-rec x x))
+                (sqrt(prod-esc-rec y y)))))) ;; METER QUE RECIBA COMO ARGUMENTO UNA FUNCION
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; producto-escalar-mapcar (x y)
@@ -61,10 +67,10 @@
 ;;;
 
 (defun cosine-distance-mapcar (x y)
-  (if (= 0 (* (prod-esc-mapcar x x) (prod-esc-mapcar y y))) 0
-       (- 1 (/ (prod-esc-mapcar x y)
+  (cond ((= 0 (* (prod-esc-mapcar x x) (prod-esc-mapcar y y))) 0)
+        (t (- 1 (/ (prod-esc-mapcar x y)
                    (* (sqrt(prod-esc-mapcar x x))
-                      (sqrt(prod-esc-mapcar y y)))))))
+                      (sqrt(prod-esc-mapcar y y))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
