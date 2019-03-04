@@ -288,10 +288,10 @@
 ;;;
 ;;; OUTPUT: producto cartesiano de las dos listas
 
-(defun combine-cons-lst-lst (lst1 lst2)
+(defun combine-append-lst-lst (lst1 lst2)
   (cond ((or (null lst1) (null lst2))
          nil)
-        (t (mapcan #'(lambda(x) (combine-cons-elt-lst x lst2)) lst1))))
+        (t (append (combine-cons-elt-lst (first lst1) lst2) (combine-append-lst-lst (rest lst1) lst2)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; combine-list-of-lsts
@@ -306,7 +306,7 @@
 (defun combine-list-of-lsts (lstolsts)
   (cond ((null lstolsts)
          (list nil))
-        (t (combine-cons-lst-lst (first lstolsts)
+        (t (combine-append-lst-lst (first lstolsts)
                             (combine-list-of-lsts (rest lstolsts))))))
 
 
