@@ -1,0 +1,155 @@
+;; Javier Martinez Rubio javier.martinezrubio@estudiante.uam.es e357532
+;; Jorge Santisteban Rivas jorge.santisteban@estudiante.uam.es e360104
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; EJERCICIO 1
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun formula-dst (x y prod-esc)
+  (- 1 (/ (funcall prod-esc x y)
+             (* (sqrt(funcall prod-esc x x))
+                (sqrt(funcall prod-esc y y))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; producto-escalar-rec (x y)
+;;; Calcula el producto escalar de forma recursiva
+;;; Se asume que los dos vectores de entrada tienen la misma longitud.
+;;;
+;;; INPUT: x: vector, representado como una lista
+;;;         y: vector, representado como una lista
+;;; OUTPUT: producto escalar entre x e y
+;;;
+
+(defun prod-esc-rec (x y)
+  (if (or (null x) (null y))
+    0
+    (+ (* (first x) (first y))
+       (prod-esc-rec (rest x) (rest y)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; cosine-distance-rec (x y)
+;;; Calcula la distancia coseno de un vector de forma recursiva
+;;; Se asume que los dos vectores de entrada tienen la misma longitud.
+;;;
+;;; INPUT: x: vector, representado como una lista
+;;;         y: vector, representado como una lista
+;;; OUTPUT: distancia coseno entre x e y
+;;;
+(defun cosine-distance-rec (x y)
+  (cond ((= 0 (* (prod-esc-rec x x) (prod-esc-rec y y))) 0)
+        (t (formula-dst x y #'prod-esc-rec))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; producto-escalar-mapcar (x y)
+;;; Calcula el producto escalar usando mapcar
+;;; Se asume que los dos vectores de entrada tienen la misma longitud.
+;;;
+;;; INPUT: x: vector, representado como una lista
+;;;         y: vector, representado como una lista
+;;; OUTPUT: producto escalar entre x e y
+;;;
+
+(defun prod-esc-mapcar (x y)
+  (if (or (null x) (null y))
+  0
+  (apply #'+ (mapcar #'* x y))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; cosine-distance-mapcar
+;;; Calcula la distancia coseno de un vector usando mapcar
+;;; Se asume que los dos vectores de entrada tienen la misma longitud.
+;;;
+;;; INPUT:  x: vector, representado como una lista
+;;;         y: vector, representado como una lista
+;;; OUTPUT: distancia coseno entre x e y
+;;;
+
+(defun cosine-distance-mapcar (x y)
+  (cond ((= 0 (* (prod-esc-mapcar x x) (prod-esc-mapcar y y))) 0)
+        (t (formula-dst x y #'prod-esc-mapcar))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; order-lst-vectors
+;;; Ordena las listas segun su nivel de confianza
+;;; INPUT:  vector-ref: vector que representa a una categoria,
+;;;                 representado como una lista
+;;;         vector-insert: dupla con el vector a insertary su distancia, ya calculada
+;;;         ord-lst-of-vectors: nuevo vector de vectores ordenados
+;;; OUTPUT: Vectores cuya semejanza con respecto a la
+;;;         categoria es superior al nivel de confianza ,
+;;;         ordenados
+;;;
+
+
+(defun order-lst-vectors(vector-ref vector-insert ord-lst-of-vectors)
+  (cond ((null  ord-lst-of-vectors) (cons (second vector-insert) ord-lst-of-vectors))
+        ((< (first vector-insert)
+            (cosine-distance-mapcar vector-ref (first ord-lst-of-vectors)))
+         (cons (second vector-insert) ord-lst-of-vectors))
+        (t (cons (first ord-lst-of-vectors)
+                 (order-lst-vectors vector-ref vector-insert (rest ord-lst-of-vectors))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; order-vectors-cosine-distance
+;;; Devuelve aquellos vectores similares a una categoria
+;;; INPUT:  vector: vector que representa a una categoria,
+;;;                 representado como una lista
+;;;         lst-of-vectors vector de vectores
+;;;         confidence-level: Nivel de confianza (parametro opcional)
+;;; OUTPUT: Vectores cuya semejanza con respecto a la
+;;;         categoria es superior al nivel de confianza ,
+;;;         ordenados
+;;;
+
+
+(defun order-vectors-cosine-distance (vector lst-of-vectors &optional (confidence-level 0))
+  (if (>= (- 1 confidence-level)
+         (cosine-distance-mapcar vector (first lst-of-vectors)))
+    (if (null (rest lst-of-vectors))
+      (order-lst-vectors vector (list (cosine-distance-mapcar vector (first lst-of-vectors)) (first lst-of-vectors)) '())
+      (order-lst-vectors vector (list (cosine-distance-mapcar vector (first lst-of-vectors)) (first lst-of-vectors))
+      (order-vectors-cosine-distance vector (rest lst-of-vectors) confidence-level)))
+    (if (null (rest lst-of-vectors))
+      nil
+      (order-vectors-cosine-distance vector (rest lst-of-vectors) confidence-level))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; get-vectors-category (categories vectors distance-measure)
+;;; Clasifica a los textos en categorias .
+;;;
+;;; INPUT : categories: vector de vectores, representado como
+;;;                     una lista de listas
+;;;         texts:      vector de vectores, representado como
+;;;                     una lista de listas
+;;;         distance-measure: funcion de distancia
+;;; OUTPUT: Pares formados por el vector que identifica la categoria
+;;;         de menor distancia , junto con el valor de dicha distancia
+;;;
+( defun get-vectors-category (categories texts distance-measure)
+  (if (or (null categories) (null texts))
+      NIL
+  (mapcar #'(lambda(x) (get-text-category categories x distance-measure (list (first (first categories))
+            (funcall distance-measure (rest (first categories)) (rest x))))) texts)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; get-text-category (categories text distance-measure min-category)
+;;; A partir de un texto devolvemos el identificador de la categoria que lo aproxima y su distancia.
+;;;
+;;; INPUT : categories: vector de vectores, representado como
+;;;                     una lista de listas
+;;;         text:      vector, representado como una lista
+;;;         distance-measure: funcion de distancia
+;;;         min-category: la categoria minima para comenzar la iteracion (la primera categoria por defecto)
+;;; OUTPUT: Par formado por el vector que identifica la categoria
+;;;         de menor distancia , junto con el valor de dicha distancia
+
+
+(defun get-text-category (categories text distance-measure min-category)
+  (if (null categories)
+      min-category
+    (if (< (funcall distance-measure (rest (first categories)) (rest text))
+           (second min-category))
+      (get-text-category (rest categories) text distance-measure (list (first (first categories))
+                                                                  (funcall distance-measure (rest (first categories)) (rest text))))
+      (get-text-category (rest categories) text distance-measure min-category))))

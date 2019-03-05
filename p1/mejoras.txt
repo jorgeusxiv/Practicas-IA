@@ -1,7 +1,6 @@
 
-poner formula aparte en el 1
+
 para el prod-escalar x x y y poner let
 pares de distancia-vector en el 1.2
 igual para el 1.3 con la distancia (para no calcularla todas las veces)
-mejorar el cons-lst-lst sin el mapcan
 poner mas ejemplos en la memoria

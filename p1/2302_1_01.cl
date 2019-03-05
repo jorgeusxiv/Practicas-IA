@@ -4,6 +4,11 @@
 ;; EJERCICIO 1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun formula-dst (x y prod-esc)
+  (- 1 (/ (funcall prod-esc x y)
+             (* (sqrt(funcall prod-esc x x))
+                (sqrt(funcall prod-esc y y))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; producto-escalar-rec (x y)
 ;;; Calcula el producto escalar de forma recursiva
@@ -31,15 +36,7 @@
 ;;;
 (defun cosine-distance-rec (x y)
   (cond ((= 0 (* (prod-esc-rec x x) (prod-esc-rec y y))) 0)
-        (t (- 1 (/ (prod-esc-rec x y)
-                   (* (sqrt(prod-esc-rec x x))
-                      (sqrt(prod-esc-rec y y))))))))
-
-
-(defun formula-dst (x y)
-  (-1 (/ (prod-esc-rec x y)
-             (* (sqrt(prod-esc-rec x x))
-                (sqrt(prod-esc-rec y y)))))) ;; METER QUE RECIBA COMO ARGUMENTO UNA FUNCION
+        (t (formula-dst x y #'prod-esc-rec))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; producto-escalar-mapcar (x y)
@@ -68,9 +65,7 @@
 
 (defun cosine-distance-mapcar (x y)
   (cond ((= 0 (* (prod-esc-mapcar x x) (prod-esc-mapcar y y))) 0)
-        (t (- 1 (/ (prod-esc-mapcar x y)
-                   (* (sqrt(prod-esc-mapcar x x))
-                      (sqrt(prod-esc-mapcar y y))))))))
+        (t (formula-dst x y #'prod-esc-mapcar))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -78,7 +73,7 @@
 ;;; Ordena las listas segun su nivel de confianza
 ;;; INPUT:  vector-ref: vector que representa a una categoria,
 ;;;                 representado como una lista
-;;;         vector-insert: vector a insertar
+;;;         vector-insert: dupla con el vector a insertary su distancia, ya calculada
 ;;;         ord-lst-of-vectors: nuevo vector de vectores ordenados
 ;;; OUTPUT: Vectores cuya semejanza con respecto a la
 ;;;         categoria es superior al nivel de confianza ,
@@ -87,10 +82,10 @@
 
 
 (defun order-lst-vectors(vector-ref vector-insert ord-lst-of-vectors)
-  (cond ((null  ord-lst-of-vectors) (cons vector-insert ord-lst-of-vectors))
-        ((< (cosine-distance-mapcar vector-ref vector-insert)
+  (cond ((null  ord-lst-of-vectors) (cons (second vector-insert) ord-lst-of-vectors))
+        ((< (first vector-insert)
             (cosine-distance-mapcar vector-ref (first ord-lst-of-vectors)))
-         (cons vector-insert ord-lst-of-vectors))
+         (cons (second vector-insert) ord-lst-of-vectors))
         (t (cons (first ord-lst-of-vectors)
                  (order-lst-vectors vector-ref vector-insert (rest ord-lst-of-vectors))))))
 
@@ -111,9 +106,9 @@
   (if (>= (- 1 confidence-level)
          (cosine-distance-mapcar vector (first lst-of-vectors)))
     (if (null (rest lst-of-vectors))
-      (order-lst-vectors vector (first lst-of-vectors) '())
-      (order-lst-vectors vector (first lst-of-vectors) (order-vectors-cosine-distance
-                                                      vector (rest lst-of-vectors) confidence-level)))
+      (order-lst-vectors vector (list (cosine-distance-mapcar vector (first lst-of-vectors)) (first lst-of-vectors)) '())
+      (order-lst-vectors vector (list (cosine-distance-mapcar vector (first lst-of-vectors)) (first lst-of-vectors))
+      (order-vectors-cosine-distance vector (rest lst-of-vectors) confidence-level)))
     (if (null (rest lst-of-vectors))
       nil
       (order-vectors-cosine-distance vector (rest lst-of-vectors) confidence-level))))
@@ -134,7 +129,8 @@
 ( defun get-vectors-category (categories texts distance-measure)
   (if (or (null categories) (null texts))
       NIL
-  (mapcar #'(lambda(x) (get-text-category categories x distance-measure (first categories))) texts)))
+  (mapcar #'(lambda(x) (get-text-category categories x distance-measure (list (first (first categories))
+            (funcall distance-measure (rest (first categories)) (rest x))))) texts)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; get-text-category (categories text distance-measure min-category)
@@ -151,11 +147,13 @@
 
 (defun get-text-category (categories text distance-measure min-category)
   (if (null categories)
-     (list (first min-category) (funcall distance-measure (rest text) (rest min-category)))
+      min-category
     (if (< (funcall distance-measure (rest (first categories)) (rest text))
-           (funcall distance-measure (rest min-category) (rest text)))
-      (get-text-category (rest categories) text distance-measure (first categories))
+           (second min-category))
+      (get-text-category (rest categories) text distance-measure (list (first (first categories))
+                                                                  (funcall distance-measure (rest (first categories)) (rest text))))
       (get-text-category (rest categories) text distance-measure min-category))))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -288,10 +286,10 @@
 ;;;
 ;;; OUTPUT: producto cartesiano de las dos listas
 
-(defun combine-append-lst-lst (lst1 lst2)
+(defun combine-cons-lst-lst (lst1 lst2)
   (cond ((or (null lst1) (null lst2))
          nil)
-        (t (append (combine-cons-elt-lst (first lst1) lst2) (combine-append-lst-lst (rest lst1) lst2)))))
+        (t (mapcan #'(lambda(x) (combine-cons-elt-lst x lst2)) lst1))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; combine-list-of-lsts
@@ -306,7 +304,7 @@
 (defun combine-list-of-lsts (lstolsts)
   (cond ((null lstolsts)
          (list nil))
-        (t (combine-append-lst-lst (first lstolsts)
+        (t (combine-cons-lst-lst (first lstolsts)
                             (combine-list-of-lsts (rest lstolsts))))))
 
 
