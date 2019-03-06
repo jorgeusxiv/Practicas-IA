@@ -278,18 +278,18 @@
         (t (mapcar #'(lambda(x) (cons elt x)) lst))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; combine-cons-lst-lst
-;;; Calcula el producto cartesiano de dos listas (utilizando cons)
+;;; combine-append-lst-lst
+;;; Calcula el producto cartesiano de dos listas (utilizando append)
 ;;;
 ;;; INPUT: lst1: primera lista
 ;;;        lst2: segunda lista
 ;;;
 ;;; OUTPUT: producto cartesiano de las dos listas
 
-(defun combine-cons-lst-lst (lst1 lst2)
+(defun combine-append-lst-lst (lst1 lst2)
   (cond ((or (null lst1) (null lst2))
          nil)
-        (t (mapcan #'(lambda(x) (combine-cons-elt-lst x lst2)) lst1))))
+        (t (append (combine-cons-elt-lst (first lst1) lst2) (combine-append-lst-lst (rest lst1) lst2)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; combine-list-of-lsts
@@ -304,7 +304,7 @@
 (defun combine-list-of-lsts (lstolsts)
   (cond ((null lstolsts)
          (list nil))
-        (t (combine-cons-lst-lst (first lstolsts)
+        (t (combine-append-lst-lst (first lstolsts)
                             (combine-list-of-lsts (rest lstolsts))))))
 
 
@@ -628,9 +628,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; shortest-path-improved
 ;;; Version de busqueda en anchura que no entra en recursion
-;;; infinita cuando el grafo tiene ciclos
+;;; infinita cuando el grafo tiene ciclos y que encuentra el camino mas corto
 ;;; INPUT:   end: nodo final
-;;;          queue: cola de nodos por explorar
+;;;          start: nodo inicial
 ;;;          net: grafo
 ;;; OUTPUT: camino mas corto entre dos nodos
 ;;;         nil si no lo encuentra
@@ -638,22 +638,32 @@
 ; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; ;; B r e a d t h - f i r s t - s e a r c h in graphs
 ; ;;
-( defun bfs-improved ( end queue net rpt-lst)
+
+
+(defun bfs-improved (end queue net)
+  (bfs-improved-aux end queue net NIL))
+
+
+( defun bfs-improved-aux ( end queue net rpt-lst)
   ( if ( null queue ) '()
     ( let* (( path ( first queue ))
       ( node ( first path )))
       ( if ( eql node end )
         ( reverse path )
         (if (null (find node rpt-lst))
-            (bfs-improved end (append (rest queue) (new-paths path node net)) net (cons node rpt-lst))
-          (bfs-improved end (rest queue) net rpt-lst))))))
+            (bfs-improved-aux end (append (rest queue) (new-paths path node net)) net (cons node rpt-lst))
+          (bfs-improved-aux end (rest queue) net rpt-lst))))))
 
 ( defun new-paths ( path node net )
   ( mapcar #'( lambda ( n ) (cons n path )) ( rest ( assoc node net ))))
 
 
-( defun shortest-path-improved ( start end net rpt-lst)
-  ( bfs-improved end ( list ( list start )) net rpt-lst))
+( defun shortest-path-improved-aux ( start end net)
+  ( bfs-improved end ( list ( list start )) net))
+
+(defun shortest-path-improved (start end net)
+  (shortest-path-improved-aux start end net)
+  )
 ; ;;
 
 
