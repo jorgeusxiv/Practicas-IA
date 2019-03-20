@@ -58,10 +58,10 @@
 ;;
 
 
-(defparameter node-nevers
-   (make-node :state 'Nevers) )
+(defparameter node-marseille
+   (make-node :state 'marseille) )
 (defparameter node-paris
-   (make-node :state 'Paris :parent node-nevers))
+   (make-node :state 'Paris :parent node-marseille))
 (defparameter node-nancy
    (make-node :state 'Nancy :parent node-paris))
 (defparameter node-reims
@@ -191,8 +191,8 @@
                                              lst-nodes-ex6
                                              *uniform-cost*))
 
-(mapcar #'(lambda (x) (node-state x)) sol-ex6) ; -> (PARIS NANCY TOULOUSE)
-(mapcar #'(lambda (x) (node-g x)) sol-ex6) ; -> (0 50 75)
+(mapcar #'(lambda (x) (node-state x)) sol-ex7) ; -> (PARIS NANCY TOULOUSE)
+(mapcar #'(lambda (x) (node-g x)) sol-ex7) ; -> (0 50 75)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

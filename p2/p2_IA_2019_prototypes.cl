@@ -151,10 +151,13 @@
 ;;  the cost of travel
 
 (defun f-h-time (state sensors)
+  (first (second (assoc state sensors)))
   )
 
 (defun f-h-price (state sensors)
+  (second (second (assoc state sensors)))
   )
+
 ;;
 ;; END: Exercise 1 -- Evaluation of the heuristic
 ;;
@@ -164,6 +167,21 @@
 ;;
 ;; BEGIN: Exercise 2 -- Navigation operators
 ;;
+
+;;FUNCIONES AUXILIARES PARA OBTENER EL ESTADO INICIO, EL ESTADO FINAL Y LOS COSTES
+
+(defun start (edge)
+  (first edge))
+
+(defun end (edge)
+  (second edge))
+
+(defun cost-time (edge)
+  (first (third edge)))
+
+(defun cost-price (edge)
+  (second (third edge)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -187,7 +205,16 @@
 ;;    the destination in the states to which the current one is connected
 ;;
 (defun navigate (state lst-edges cfun  name &optional forbidden )
-  )
+
+  (remove nil (mapcar #'(lambda(x) (if (and (eql state (start x)) ;;Comprobamos que state sea el inicio
+                           (NULL (find (end x) forbidden))) ;;Comprobamos que el destino no esté en forbidden
+                           (make-action :name name
+                                        :origin state
+                                        :final (end x)
+                                        :cost (funcall cfun x))
+                         NIL))
+          lst-edges)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -198,9 +225,11 @@
 ;; from the current city to the cities reachable from it by canal navigation.
 ;;
 (defun navigate-canal-time (state canals)
+  (navigate state canals #'cost-time 'NAVIGATE-CANAL-TIME)
   )
 
 (defun navigate-canal-price (state canals)
+  (navigate state canals #'cost-price 'NAVIGATE-CANAL-PRICE)
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -214,9 +243,11 @@
 ;; Note that this function takes as a parameter a list of forbidden cities.
 ;;
 (defun navigate-train-time (state trains forbidden)
+  (navigate state trains #'cost-time 'NAVIGATE-TRAIN-TIME forbidden)
   )
 
 (defun navigate-train-price (state trains forbidden)
+  (navigate state trains #'cost-price 'NAVIGATE-TRAIN-PRICE forbidden)
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -242,8 +273,25 @@
 ;;    NIL: invalid path: either the final city is not a destination or some
 ;;         of the mandatory cities are missing from the path.
 ;;
-(defun f-goal-test (node destination mandatory)
+
+(defun f-goal-path (node mandatory)
+  (if (NULL (node-parent node))
+      (if (NULL (remove (node-state node) mandatory))
+          t
+          NIL)
+
+      (if (find (node-state node) mandatory)
+          (f-goal-path (node-parent node) (remove (node-state node) mandatory))
+          (f-goal-path (node-parent node) mandatory))
+    )
   )
+
+(defun f-goal-test (node destinations mandatory)
+  (if (find (node-state node) destinations)
+      (f-goal-path node mandatory)
+      NIL)
+ )
+
 
 ;;
 ;; END: Exercise 3 -- Goal test
@@ -256,6 +304,31 @@
 ;; BEGIN: Exercise 4 -- Equal predicate for search states
 ;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Si ha visitado todas las ciudades obligatorias devolverá NIL, sino devolverá las ciudades
+;; obligatorias restantes
+;;
+;,
+;;  Input:
+;;    node      : el nodo a estudiar
+;;    mandatory:  list with the names of the cities that is mandatory to visit
+;;
+;;  Returns
+;;    mandatory: la lista una vez visitados todos los nodos
+;;
+
+
+(defun f-search-path (node &optional mandatory)
+  (if (NULL (node-parent node))
+      mandatory
+      (if (find (node-state node) mandatory)
+          (f-search-path (node-parent node) (remove (node-parent node) mandatory))
+          (f-search-path (node-parent node) mandatory)
+
+      )
+   )
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -271,8 +344,17 @@
 ;;    T: the two ndoes are equivalent
 ;;    NIL: The nodes are not equivalent
 ;;
+
+
 (defun f-search-state-equal (node-1 node-2 &optional mandatory)
+  (if (eql (node-state node-1) (node-state node-2) )
+      (if (eql (f-search-path node-1 mandatory) (f-search-path node-2 mandatory))
+          t
+          NIL)
+      NIL
   )
+)
+
 
 ;;
 ;; END: Exercise 4 -- Equal predicate for search states
@@ -296,11 +378,27 @@
 
 (defparameter *travel-cheap*
   (make-problem
+   :states *cities*
+   :initial-state *origin*
+   :f-h #'(lambda (state) (f-h-price state *estimate*))
+   :f-goal-test #'(lambda(node) (f-goal-test node *destination* *mandatory*))
+   :f-search-state-equal #'(lambda(node-1 node-2) (f-search-state-equal node-1 node-2 *mandatory*))
+   :operators (list
+              #'(lambda (node) (navigate-train-price (node-state node) *trains* *forbidden*))
+              #'(lambda (node) (navigate-canal-price (node-state node) *canals*)))
    )
   )
 
 (defparameter *travel-fast*
   (make-problem
+   :states *cities*
+   :initial-state *origin*
+   :f-h #'(lambda (state) (f-h-price state *estimate*))
+   :f-goal-test #'(lambda(node) (f-goal-test node *destination* *mandatory*))
+   :f-search-state-equal #'(lambda(node-1 node-2) (f-search-state-equal node-1 node-2 *mandatory*))
+   :operators (list
+              #'(lambda (node) (navigate-train-time (node-state node) *trains* *forbidden*))
+              #'(lambda (node) (navigate-canal-time (node-state node) *canals*)))
    )
   )
 
@@ -317,7 +415,7 @@
 ;; The main function of this section is "expand-node", which receives
 ;; a node structure (the node to be expanded) and a problem structure.
 ;; The problem structure has a list of navigation operators, and we
-;; are interested in the states that can be reached using anuy one of
+;; are interested in the states that can be reached using any one of
 ;; them.
 ;;
 ;; So, in the expand-node function, we iterate (using mapcar) on all
@@ -345,7 +443,26 @@
 ;;    given one
 ;;
 (defun expand-node (node problem)
+  (mapcar #'(lambda(x) (expand-node-action node x (problem-f-h problem))) (expand-node-operator node problem))
   )
+
+(defun expand-node-operator (node problem)
+  (mapcan #'(lambda(x) (funcall x node)) (problem-operators problem)))
+
+(defun expand-node-action (node action f-h)
+  (let ((h (funcall f-h (action-final action)))
+        (g (+ (node-g node) (action-cost action))))
+    (make-node :state (action-final action)
+               :parent node
+               :action action
+               :g g
+               :h h
+               :f (+ h g)
+               )
+    )
+  )
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -376,6 +493,13 @@
 ;;;  receives a strategy, extracts from it the comparison function,
 ;;;  and calls insert-nodes
 
+(defun insert-node (node lst-nodes node-compare-p)
+  (cond ((NULL lst-nodes) node)
+        ((funcall node-compare-p node (first lst-nodes))
+         (cons node lst-nodes))
+        (t (cons (first lst-nodes) (insert-node node (rest lst-nodes) node-compare-p)))
+    )
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -396,6 +520,10 @@
 ;;   criterion node-compare-p.
 ;;
 (defun insert-nodes (nodes lst-nodes node-compare-p)
+  (if (NULL nodes)
+      lst-nodes
+      (insert-nodes (rest nodes) (insert-node (first nodes) lst-nodes node-compare-p) node-compare-p)
+    )
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -422,8 +550,51 @@
 ;;   parameter; all it does is to "extract" the compare function and
 ;;   use it to call insert-nodes.
 ;;
+
 (defun insert-nodes-strategy (nodes lst-nodes strategy)
+  (insert-nodes nodes lst-nodes (strategy-node-compare-p strategy))
   )
+  ;
+  ;
+  ; ;; TESTS
+  ;
+  ;  (defparameter node-nevers
+  ;     (make-node :state 'Nevers) )
+  ;  (defparameter node-paris
+  ;     (make-node :state 'Paris :parent node-nevers))
+  ;  (defparameter node-nancy
+  ;     (make-node :state 'Nancy :parent node-paris))
+  ;  (defparameter node-reims
+  ;     (make-node :state 'Reims :parent node-nancy))
+  ;  (defparameter node-calais
+  ;     (make-node :state 'Calais :parent node-reims))
+  ;  (defparameter node-calais-2
+  ;     (make-node :state 'Calais :parent node-paris))
+  ; (defparameter node-marseille-ex6
+  ;    (make-node :state 'Marseille :depth 12 :g 10 :f 20) )
+  ;
+  ; (defparameter lst-nodes-ex6
+  ;   (expand-node node-marseille-ex6 *travel-fast*))
+  ;
+  ; (defun node-g-<= (node-1 node-2)
+  ;   (<= (node-g node-1)
+  ;       (node-g node-2)))
+  ;
+  ; (defparameter *uniform-cost*
+  ;   (make-strategy
+  ;    :name 'uniform-cost
+  ;    :node-compare-p #'node-g-<=))
+  ;
+  ; (defparameter node-paris-ex7
+  ;   (make-node :state 'Paris :depth 0 :g 0 :f 0) )
+  ;
+  ; (defparameter node-nancy-ex7
+  ;   (make-node :state 'Nancy :depth 2 :g 50 :f 50) )
+  ;
+  ;
+  ; (defparameter sol-ex7 (insert-nodes-strategy (list node-paris-ex7 node-nancy-ex7)
+  ;                                              lst-nodes-ex6
+  ;                                              *uniform-cost*))
 
 ;;
 ;;    END: Exercize 7 -- Node list management
@@ -440,8 +611,14 @@
 ;; us which nodes should be analyzed first. In the A* strategy, the first
 ;; node to be analyzed is the one with the smallest value of g+h
 ;;
+(defun node-f-<= (node-1 node-2)
+  (<= (node-f node-1)
+      (node-f node-2)))
+
 (defparameter *A-star*
-  (make-strategy ))
+  (make-strategy
+                :name 'A-estrella
+                :node-compare-p #'node-f-<=))
 
 ;;
 ;; END: Exercise 8 -- Definition of the A* strategy
