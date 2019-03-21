@@ -122,7 +122,8 @@
     (Limoges (100.0 0.0)) (Roenne (85.0 0.0)) (Lyon (105.0 0.0))
     (Toulouse (130.0 0.0)) (Avignon (135.0 0.0)) (Marseille (145.0 0.0))))
 
-(defparameter *origin* 'Marseille)
+(defparameter *origin*
+  (make-node :state 'Marseille))
 
 (defparameter *destination* '(Calais))
 
@@ -555,46 +556,8 @@
   (insert-nodes nodes lst-nodes (strategy-node-compare-p strategy))
   )
   ;
-  ;
-  ; ;; TESTS
-  ;
-  ;  (defparameter node-nevers
-  ;     (make-node :state 'Nevers) )
-  ;  (defparameter node-paris
-  ;     (make-node :state 'Paris :parent node-nevers))
-  ;  (defparameter node-nancy
-  ;     (make-node :state 'Nancy :parent node-paris))
-  ;  (defparameter node-reims
-  ;     (make-node :state 'Reims :parent node-nancy))
-  ;  (defparameter node-calais
-  ;     (make-node :state 'Calais :parent node-reims))
-  ;  (defparameter node-calais-2
-  ;     (make-node :state 'Calais :parent node-paris))
-  ; (defparameter node-marseille-ex6
-  ;    (make-node :state 'Marseille :depth 12 :g 10 :f 20) )
-  ;
-  ; (defparameter lst-nodes-ex6
-  ;   (expand-node node-marseille-ex6 *travel-fast*))
-  ;
-  ; (defun node-g-<= (node-1 node-2)
-  ;   (<= (node-g node-1)
-  ;       (node-g node-2)))
-  ;
-  ; (defparameter *uniform-cost*
-  ;   (make-strategy
-  ;    :name 'uniform-cost
-  ;    :node-compare-p #'node-g-<=))
-  ;
-  ; (defparameter node-paris-ex7
-  ;   (make-node :state 'Paris :depth 0 :g 0 :f 0) )
-  ;
-  ; (defparameter node-nancy-ex7
-  ;   (make-node :state 'Nancy :depth 2 :g 50 :f 50) )
-  ;
-  ;
-  ; (defparameter sol-ex7 (insert-nodes-strategy (list node-paris-ex7 node-nancy-ex7)
-  ;                                              lst-nodes-ex6
-  ;                                              *uniform-cost*))
+
+
 
 ;;
 ;;    END: Exercize 7 -- Node list management
@@ -615,9 +578,9 @@
   (<= (node-f node-1)
       (node-f node-2)))
 
-(defparameter *A-star*
+(defparameter *a-estrella*
   (make-strategy
-                :name 'A-estrella
+                :name 'a-estrella
                 :node-compare-p #'node-f-<=))
 
 ;;
@@ -654,6 +617,23 @@
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;FUNCION AUXILIAR QUE DEVUELVE EL ESTADO Y LA G;;;
+
+(defun get-state-n-g (lst-nodes)
+  (mapcar #'(lambda(x) (list (node-state x) (node-g x))) lst-nodes))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;FUNCION CACHARRO;;;
+
+(defun graph-search-aux2 (problem open-nodes closed-nodes strategy)
+  (let ((new-open-nodes (insert-nodes-strategy (expand-node (first open-nodes) problem) (rest open-nodes) strategy))
+        (new-closed-nodes (list (first open-nodes) closed-nodes)));;QUIZA SEA CONS O APPEND
+    (graph-search-aux problem new-open-nodes new-closed-nodes strategy)
+    )
+
+  )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -681,7 +661,28 @@
 ;;     whole path from the starting node to the final.
 ;;
 (defun graph-search-aux (problem open-nodes closed-nodes strategy)
-  )
+  (if (NULL open-nodes)
+      NIL
+      (if (funcall (problem-f-goal-test problem) (first open-nodes))
+          (first open-nodes)
+          (let ((state  (node-state (first open-nodes)))
+                (state-n-g (get-state-n-g closed-nodes)))
+
+          (if (NULL (assoc state state-n-g))
+               (graph-search-aux2 problem open-nodes closed-nodes strategy)
+              (if (< (node-g (first open-nodes)) (second (assoc state state-n-g)))
+                (graph-search-aux2 problem open-nodes closed-nodes strategy)
+                (graph-search-aux problem (rest open-nodes) closed-nodes strategy)
+              )
+           )
+
+           )
+
+        )
+    )
+ )
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -705,13 +706,61 @@
 ;;    and an empty closed list.
 ;;
 (defun graph-search (problem strategy)
+  (graph-search-aux problem (list (problem-initial-state problem)) '() strategy)
   )
 
 ;
 ;  A* search is simply a function that solves a problem using the A* strategy
 ;
 (defun a-star-search (problem)
+  (graph-search problem *a-estrella*)
   )
+
+
+  ; ;; TESTS
+  ;
+   (defparameter node-nevers
+      (make-node :state 'Nevers) )
+   (defparameter node-paris
+      (make-node :state 'Paris :parent node-nevers))
+   (defparameter node-nancy
+      (make-node :state 'Nancy :parent node-paris))
+   (defparameter node-reims
+      (make-node :state 'Reims :parent node-nancy))
+   (defparameter node-calais
+      (make-node :state 'Calais :parent node-reims))
+   (defparameter node-calais-2
+      (make-node :state 'Calais :parent node-paris))
+  (defparameter node-marseille-ex6
+     (make-node :state 'Marseille :depth 12 :g 10 :f 20) )
+
+  (defparameter lst-nodes-ex6
+    (expand-node node-marseille-ex6 *travel-fast*))
+
+  (defun node-g-<= (node-1 node-2)
+    (<= (node-g node-1)
+        (node-g node-2)))
+
+  (defparameter *uniform-cost*
+    (make-strategy
+     :name 'uniform-cost
+     :node-compare-p #'node-g-<=))
+
+  (defparameter node-paris-ex7
+    (make-node :state 'Paris :depth 0 :g 0 :f 0) )
+
+  (defparameter node-nancy-ex7
+    (make-node :state 'Nancy :depth 2 :g 50 :f 50) )
+
+  (defparameter nodo-avignon
+    (make-node :state 'Avignon :parent node-marseille-ex6))
+
+
+  (defparameter sol-ex7 (insert-nodes-strategy (list node-paris-ex7 node-nancy-ex7)
+                                               lst-nodes-ex6
+                                               *uniform-cost*))
+
+  (graph-search *travel-cheap* *a-estrella*)
 
 
 ;;
