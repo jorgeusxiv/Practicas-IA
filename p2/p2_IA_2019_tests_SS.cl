@@ -186,6 +186,9 @@
 (defparameter node-nancy-ex7
   (make-node :state 'Nancy :depth 2 :g 50 :f 50) )
 
+(defparameter nodo-avignon
+  (make-node :state 'Avignon :parent ))
+
 
 (defparameter sol-ex7 (insert-nodes-strategy (list node-paris-ex7 node-nancy-ex7)
                                              lst-nodes-ex6

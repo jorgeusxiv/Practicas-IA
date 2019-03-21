@@ -122,10 +122,9 @@
     (Limoges (100.0 0.0)) (Roenne (85.0 0.0)) (Lyon (105.0 0.0))
     (Toulouse (130.0 0.0)) (Avignon (135.0 0.0)) (Marseille (145.0 0.0))))
 
-(defparameter *origin*
-  (make-node :state 'Marseille))
+(defparameter *origin* 'Brest)
 
-(defparameter *destination* '(Calais))
+(defparameter *destination* '(Marseille))
 
 (defparameter *forbidden*  '(Avignon))
 
@@ -289,7 +288,7 @@
 
 (defun f-goal-test (node destinations mandatory)
   (if (find (node-state node) destinations)
-      (f-goal-path node mandatory)
+      (f-goal-path (node-parent node) mandatory)
       NIL)
  )
 
@@ -324,7 +323,7 @@
   (if (NULL (node-parent node))
       mandatory
       (if (find (node-state node) mandatory)
-          (f-search-path (node-parent node) (remove (node-parent node) mandatory))
+          (f-search-path (node-parent node) (remove (node-state node) mandatory))
           (f-search-path (node-parent node) mandatory)
 
       )
@@ -495,7 +494,7 @@
 ;;;  and calls insert-nodes
 
 (defun insert-node (node lst-nodes node-compare-p)
-  (cond ((NULL lst-nodes) node)
+  (cond ((NULL lst-nodes) (list node))
         ((funcall node-compare-p node (first lst-nodes))
          (cons node lst-nodes))
         (t (cons (first lst-nodes) (insert-node node (rest lst-nodes) node-compare-p)))
@@ -628,10 +627,23 @@
 
 (defun graph-search-aux2 (problem open-nodes closed-nodes strategy)
   (let ((new-open-nodes (insert-nodes-strategy (expand-node (first open-nodes) problem) (rest open-nodes) strategy))
-        (new-closed-nodes (list (first open-nodes) closed-nodes)));;QUIZA SEA CONS O APPEND
+        (new-closed-nodes (cons (first open-nodes) closed-nodes)));;QUIZA SEA CONS O APPEND
     (graph-search-aux problem new-open-nodes new-closed-nodes strategy)
     )
 
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;FUNCION CHECK-EQUAL-NODE;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun check-node-equal (node closed-nodes problem)
+  (if (NULL closed-nodes)
+      nil
+      (if (funcall (problem-f-search-state-equal problem) node (first closed-nodes))
+          t
+          (check-node-equal node (rest closed-nodes) problem)
+        )
+  )
   )
 
 
@@ -670,9 +682,12 @@
 
           (if (NULL (assoc state state-n-g))
                (graph-search-aux2 problem open-nodes closed-nodes strategy)
-              (if (< (node-g (first open-nodes)) (second (assoc state state-n-g)))
-                (graph-search-aux2 problem open-nodes closed-nodes strategy)
-                (graph-search-aux problem (rest open-nodes) closed-nodes strategy)
+              (if (check-node-equal (first open-nodes) closed-nodes problem)  ;; COMPROBAR QUE LOS NODOS SEAN IGUALES (FUNCION AUXILIAR)
+                  (if (< (node-g (first open-nodes)) (second (assoc state state-n-g)))
+                      (graph-search-aux2 problem open-nodes closed-nodes strategy)
+                      (graph-search-aux problem (rest open-nodes) closed-nodes strategy)
+                  )
+                  (graph-search-aux2 problem open-nodes closed-nodes strategy)
               )
            )
 
@@ -706,7 +721,13 @@
 ;;    and an empty closed list.
 ;;
 (defun graph-search (problem strategy)
-  (graph-search-aux problem (list (problem-initial-state problem)) '() strategy)
+  (graph-search-aux problem (list (make-node :state (problem-initial-state problem)
+                                             :parent NIL
+                                             :action NIL
+                                             :g 0
+                                             :h 0
+                                             :f 0))
+                    '() strategy)
   )
 
 ;
