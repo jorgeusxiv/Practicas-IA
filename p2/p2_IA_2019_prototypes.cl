@@ -2,14 +2,14 @@
 ;;
 ;;    Lab assignment 2: Search
 ;;
-;;    Solutions
-;;    Created:  Simone Santini, 2019/03/05
+;; Javier Martinez Rubio javier.martinezrubio@estudiante.uam.es e357532
+;; Jorge Santisteban Rivas jorge.santisteban@estudiante.uam.es e360104
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;    Problem definition
+;;    Problem definitions
 ;;
 (defstruct problem
   states               ; List of states
@@ -132,23 +132,22 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; BEGIN: Exercise 1 -- Evaluation of the heuristics
+;; BEGIN: Exercise 1 -- Evalucion de las heurísticas
 ;;
-;; Returns the value of the heuristics for a given state
+;; Devuelve el valor de las heurísticas de una determinada ciudad
 ;;
 ;;  Input:
-;;    state: the current state (vis. the planet we are on)
-;;    sensors: a sensor list, that is a list of pairs
+;;    state: la ciudad en la que estamos
+;;    sensors: una lista con heurísticas, que es una lista con pares
 ;;                (state (time-est cost-est) )
-;;             where the first element is the name of a state and the second
-;;             a number estimating the costs to reach the goal
+;;             donde el primer elemento es el nombre de la ciudad y el segundo
+;;             un numero que estima el coste(temporal o de precio)
 ;;
 ;;  Returns:
-;;    The cost (a number) or NIL if the state is not in the sensor list
+;;    El coste (un numero) o NIL si la ciudad no esta en la lista de heurísticas
 ;;
-;;  It is necessary to define two functions: the first which returns the
-;;  estimate of teh travel time, the second which returns the estimate of
-;;  the cost of travel
+;;  Es necesario definir dos funciones: la primera la cual estima el coste temporal
+;;  y la segunda el coste economico (precio)
 
 (defun f-h-time (state sensors)
   (first (second (assoc state sensors))))
@@ -157,16 +156,16 @@
   (second (second (assoc state sensors))))
 
 ;;
-;; END: Exercise 1 -- Evaluation of the heuristic
+;; END: Exercise 1 -- Evalucion de las heurísticas
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; BEGIN: Exercise 2 -- Navigation operators
+;; BEGIN: Exercise 2 -- Operadores de navegacion
 ;;
 
-;;FUNCIONES AUXILIARES PARA OBTENER EL ESTADO INICIO, EL ESTADO FINAL Y LOS COSTES
+;;Funciones auxiliares para obtener el estado inicio, el estado final y los costes
 
 (defun start (edge)
   (first edge))
@@ -180,27 +179,26 @@
 (defun cost-price (edge)
   (second (third edge)))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; General navigation function
+;; Funcion de navegacion general
 ;;
-;;  Returns the actions that can be carried out from the current state
+;;  Devuelve las acciones que se pueden realizar desde una ciudad
 ;;
 ;;  Input:
-;;    state:      the state from which we want to perform the action
-;;    lst-edges:  list of edges of the graph, each element is of the
-;;                form: (source destination (cost1 cost2))
-;;    c-fun:      function that extracts the correct cost (time or price)
-;;                from the pair that appears in the edge
-;;    name:       name to be given to the actions that are created (see the
-;;                action structure)
+;;    state:      la ciudad desde la que queremos realizar la accion
+;;    lst-edges:  lista de las aristas del grafo, cada elemento es de la
+;;                forma: (source destination (cost1 cost2))
+;;    c-fun:      funcion que extrae el coste correcto (tiempo o precio)
+;;                del par que aparece en la arista
+;;    name:       nombre dado a las acciones que se crean (ver la estructura de
+;;                action)
 ;;    forbidden-cities:
-;;                list of the cities where we can't arrive by train
+;;                lista de las ciudades que no se pueden visitar en tren
 ;;
 ;;  Returns
-;;    A list of action structures with the origin in the current state and
-;;    the destination in the states to which the current one is connected
+;;    Una lista con estructuras action con el origen en la ciudad actual y el
+;;    destino en las ciudades a las cuales el origen está conectado
 ;;
 (defun navigate (state lst-edges cfun  name &optional forbidden )
 
@@ -217,9 +215,10 @@
 ;;
 ;; Navigation by canal
 ;;
-;; This is a specialization of the general navigation function: given a
-;; state and a list of canals, returns a list of actions to navigate
-;; from the current city to the cities reachable from it by canal navigation.
+;; Esto es una especializacion de la funcion de navegar general:dado una
+;; ciudad y una lista de canales, devuelve una lista con acciones a las que navegar
+;; desde la ciudad origen hasta las ciudades alcanzables desde el origen a traves de los
+;; canales.
 ;;
 (defun navigate-canal-time (state canals)
   (navigate state canals #'cost-time 'NAVIGATE-CANAL-TIME))
@@ -231,12 +230,13 @@
 ;;
 ;; Navigation by train
 ;;
-;; This is a specialization of the general navigation function: given a
-;; state and a list of train lines, returns a list of actions to navigate
-;; from the current city to the cities reachable from it by train.
+;; Esto es una especializacion de la funcion de navegar general:dado una
+;; ciudad y una lista de trenes, devuelve una lista con acciones a las que viajar
+;; desde la ciudad origen hasta las ciudades alcanzables desde el origen a traves del
+;; tren.
+;; tener en cuenta que esta función utiliza una lista de ciudades prohibidas.
 ;;
-;; Note that this function takes as a parameter a list of forbidden cities.
-;;
+
 (defun navigate-train-time (state trains forbidden)
   (navigate state trains #'cost-time 'NAVIGATE-TRAIN-TIME forbidden))
 
@@ -248,24 +248,23 @@
 ;; BEGIN: Exercise 3 -- Goal test
 ;;
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Goal test
+;; Goal path
 ;;
-;;  Returns T or NIl depending on whether a path leads to a final state
+;;  Devuelve T or NIl dependiendo si el camino lleva a una ciudad final
 ;;
 ;;  Input:
-;;    node:       node structure that contains, in the chain of parent-nodes,
-;;                a path starting at the initial state
-;;    destinations: list with the names of the destination cities
-;;    mandatory:  list with the names of the cities that is mandatoryu to visit
+;;    node:       nodo estructura que contiene, en la cadena de nodos padres,
+;;                un camino empezando en la ciudad inicial
+;;    mandatory:  lista con los nombres de las ciudades que son obligatorias visitar
 ;;
 ;;  Returns
-;;    T: the path is a valid path to the final state
-;;    NIL: invalid path: either the final city is not a destination or some
-;;         of the mandatory cities are missing from the path.
-;;
+;;    T: el camino es un camino correcto a la ciudad final
+;;    NIL: camino erroneo: o la ciudad final no es un destino o alguna de las
+;;         ciudades obligatorias no estan en el camino.
+
+
 
 (defun f-goal-path (node mandatory)
   (if (NULL (node-parent node))
@@ -276,6 +275,24 @@
       (if (find (node-state node) mandatory)
           (f-goal-path (node-parent node) (remove (node-state node) mandatory))
           (f-goal-path (node-parent node) mandatory))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Goal test
+;;
+;;  Devuelve T or NIl dependiendo si el camino lleva a una ciudad final, comprobando si
+;; es una ciudad destino y si lleva a una ciudad final (a partir de la función goal-path)
+;;
+;;  Input:
+;;    node:       nodo estructura que contiene, en la cadena de nodos padres,
+;;                un camino empezando en la ciudad inicial
+;;    destinations: lista con los nombres de las ciudades destino
+;;    mandatory:  lista con los nombres de las ciudades que son obligatorias visitar
+;;
+;;  Returns
+;;    T: el camino es un camino correcto a la ciudad final
+;;    NIL: camino erroneo: o la ciudad final no es un destino o alguna de las
+;;         ciudades obligatorias no estan en el camino.
 
 (defun f-goal-test (node destinations mandatory)
   (if (find (node-state node) destinations)
@@ -302,7 +319,7 @@
 ;,
 ;;  Input:
 ;;    node      : el nodo a estudiar
-;;    mandatory:  list with the names of the cities that is mandatory to visit
+;;    mandatory:  lista con los nombres de las ciudades que es obligatorio visitar
 ;;
 ;;  Returns
 ;;    mandatory: la lista una vez visitados todos los nodos
@@ -318,17 +335,17 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Determines if two nodes are equivalent with respect to the solution
-;; of the problem: two nodes are equivalent if they represent the same city
-;, and if the path they contain includes the same mandatory cities.
+;; Determina si dos nodos son iguales respecto a la solución del problema:
+;; dos nodos son equivalentes si representan la misma ciudad y si el camino
+;, contiene las mismas ciudades obligatorias
 ;;  Input:
-;;    node-1, node-1: the two nodes that we are comparing, each one
-;;                    defining a path through the parent links
-;;    mandatory:  list with the names of the cities that is mandatory to visit
+;;    node-1, node-2: los dos nodos que estamos comparando, cada uno
+;;                    define un camino a través del enlace de nodos padre
+;;    mandatory:  lista con los nombres de las ciudades que es obligatorio visitar
 ;;
 ;;  Returns
-;;    T: the two ndoes are equivalent
-;;    NIL: The nodes are not equivalent
+;;    T: los dos nodos son equivalentes
+;;    NIL: los dos nodos no son equivalentes
 ;;
 
 
@@ -350,15 +367,15 @@
 ;;  BEGIN: Exercise 5 -- Define the problem structure
 ;;
 ;;
-;;  Note that the connectivity of the netowrk using canals and trains
-;;  holes is implicit in the operators: there is a list of two
-;;  operators, each one takes a single parameter: a state name, and
-;;  returns a list of actions, indicating to which states one can move
-;;  and at which cost. The lists of edges are placed as constants as
-;;  the second parameter of the navigate operators.
+;;  Notar que la conectividad de la red usando canales y trenes
+;;  es implicita en los operadores: hay una lista de dos operadores,
+;;  cada uno coge un solo parametro: el nombre de la ciudad, y devuelve
+;;  una lista de acciones, indicando a que ciudades se puede mover y a
+;;  coste. La lista de aristas son constantes en el segundo parametro de
+;;  los operadores de navegacion
 ;;
-;;  There are two problems defined: one minimizes the travel time,
-;;  the other minimizes the cost
+;;  Hay dos problemas definidos: uno minimiza el tiempo, otro el coste
+
 
 (defparameter *travel-cheap*
   (make-problem
@@ -392,39 +409,54 @@
 ;;
 ;; BEGIN Exercise 6: Expand node
 ;;
-;; The main function of this section is "expand-node", which receives
-;; a node structure (the node to be expanded) and a problem structure.
-;; The problem structure has a list of navigation operators, and we
-;; are interested in the states that can be reached using any one of
-;; them.
+;; La función principal de esta sección es "expand-node", que recibe
+;; a node estructura (el nodo a expandir) y una problem estructura.
+;; La problem estructura tiene una lista de operadores de navigacion, y
+;; nosotos estamos interesados en las ciudades a las que se puede llegar usando
+;; alguno de ellos.
 ;;
-;; So, in the expand-node function, we iterate (using mapcar) on all
-;; the operators of the problem and, for each one of them, we call
-;; expand-node-operator, to determine the states that can be reached
-;; using that operator.
+;; Por lo que, en la función expand-node, iteramos (usando mapcar) sobre todos
+;; los operadores del problema, y para cada uno de ellos, llamamos a
+;; expand-node-operator, para determinar las ciudades a las que se puede llegar
+;; usando ese operador.
 ;;
-;; The operator gives us back a list of actions. We iterate again on
-;; this list of action and, for each one, we call expand-node-action
-;; that creates a node structure with the node that can be reached
-;; using that action.
+;; El operador nos devuelve una lista de actions. Iteramos de nuevo en
+;; esta lista de actions y, para cada una, llamamos a expand-node-action
+;; que crea una node estructura con el nodo al que se puede llegar a partir de
+;; esa action
 ;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Creates a list with all the nodes that can be reached from the
-;;  current one using all the operators in a given problem
+;;  Crea una lista con todas las acciones a los que se puede llegar usando unos
+;; determinados operadores
 ;;
 ;;  Input:
-;;    node:   the node structure from which we start.
-;;    problem: the problem structure with the list of operators
+;;    node:   la node estructura desde donde empezamos.
+;;    problem: la problem estructura con la lista de operadores
 ;;
 ;;  Returns:
-;;    A list (node_1,...,node_n) of nodes that can be reached from the
-;;    given one
+;;    Una lista (action_1,...,action_n) de acciones a los que se puede llegar desde
+;;    el actual con los operadores
 ;;
+
 
 (defun expand-node-operator (node problem)
   (mapcan #'(lambda(x) (funcall x node)) (problem-operators problem)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Crea una node estructura con el nodo al que se puede llegar a partir de
+;; esa action (modificando la g y la h)
+;;
+;;  Input:
+;;    node:   la node estructura desde donde empezamos.
+;;    problem: la problem estructura con la lista de operadores
+;;
+;;  Returns:
+;;   Una node estructura con el nodo al que se puede llegar a partir de
+;;   esa action (modificando la g y la h)
+;;
 
 (defun expand-node-action (node action f-h)
   (let ((h (funcall f-h (action-final action)))
@@ -436,6 +468,20 @@
                :h h
                :f (+ h g))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Crea una lista con todos los nodos a los que se puede llegar desde el
+;;  actual usando todos los operadores de un problema
+;;
+;;  Input:
+;;    node:   la node estructura desde donde empezamos.
+;;    problem: la problem estructura con la lista de operadores
+;;
+;;  Returns:
+;;    Una lista (node_1,...,node_n) de nodos a los que se puede llegar desde
+;;    el actual
+;;
+
 (defun expand-node (node problem)
   (mapcar #'(lambda(x) (expand-node-action node x (problem-f-h problem))) (expand-node-operator node problem)))
 
@@ -445,20 +491,20 @@
 ;;;
 ;;;  BEGIN Exercise 7 -- Node list management
 ;;;
-;;;  Merges two lists of nodes, one of them ordered with respect to a
-;;;  given strategy, keeping the result ordered with respect to the
-;;;  same strategy.
+;;;  Fusiona dos listas de nodos, una de ellas ordenada respecto a una
+;;;  estrategia dada, manteniendo el resultado ordenado con respecto a una
+;;;  misma estrategia.
 ;;;
-;;;  This is the idea: suppose that the ordering is simply the
-;;;  ordering of natural numbers. We have a "base" list that is
-;;;  already ordered, for example:
+;;;  Esta es la idea: supongamos que la manera de ordenar es simplemente
+;;;  la manera de ordenar los numeros naturales. Tenemos una lista "base" que ya
+;;;  está ordenada, por ejemplo:
 ;;;      lst1 --> '(3 6 8 10 13 15)
 ;;;
-;;;  and a list that is not necessarily ordered:
+;;;  y una lista no necesariamente ordenada:
 ;;;
 ;;;      nord --> '(11 5 9 16)
 ;;;
-;;;  the call (insert-nodes nord lst1 #'<) would produce
+;;;  la llamada a (insert-nodes nord lst1 #'<) producira
 ;;;
 ;;;    (3 5 6 8 9 10 11 13 15 16)
 ;;;
