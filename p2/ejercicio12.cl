@@ -122,6 +122,13 @@
     (Limoges (100.0 0.0)) (Roenne (85.0 0.0)) (Lyon (105.0 0.0))
     (Toulouse (130.0 0.0)) (Avignon (135.0 0.0)) (Marseille (145.0 0.0))))
 
+(defparameter *estimate-new*
+  '((Calais (0.0 0.0)) (Reims (25.0 5.0)) (Paris (30.0 8.333))
+    (Nancy (50.0 11.666)) (Orleans (55.0 21.0)) (St-Malo (65.0 31.666))
+    (Nantes (75.0 39.333)) (Brest (90.0 45.0)) (Nevers (70.0 15.0))
+    (Limoges (100.0 35.0)) (Roenne (85.0 16.666)) (Lyon (105.0 18.333))
+    (Toulouse (130.0 46.666)) (Avignon (135.0 31.666)) (Marseille (145.0 40.0))))
+
 (defparameter *origin* 'Marseille)
 
 (defparameter *destination* '(Calais))
@@ -381,6 +388,18 @@
    :operators (list
               #'(lambda (node) (navigate-train-time (node-state node) *trains* *forbidden*))
               #'(lambda (node) (navigate-canal-time (node-state node) *canals*)))))
+
+
+(defparameter *travel-cheap-new*
+  (make-problem
+   :states *cities*
+   :initial-state *origin*
+   :f-h #'(lambda (state) (f-h-price state *estimate-new*))
+   :f-goal-test #'(lambda(node) (f-goal-test node *destination* *mandatory*))
+   :f-search-state-equal #'(lambda(node-1 node-2) (f-search-state-equal node-1 node-2 *mandatory*))
+   :operators (list
+              #'(lambda (node) (navigate-train-price (node-state node) *trains* *forbidden*))
+              #'(lambda (node) (navigate-canal-price (node-state node) *canals*)))))
 
 ;;
 ;;  END: Exercise 5 -- Define the problem structure
@@ -644,16 +663,16 @@
       (if (funcall (problem-f-goal-test problem) (first open-nodes))
           (first open-nodes)
           (let ((state  (node-state (first open-nodes)))
-                (state-n-g (get-state-n-g closed-nodes)))
+                (state-n-g (get-state-n-g closed-nodes))
+                (explore-node (graph-search-aux2 problem open-nodes closed-nodes strategy)))
 
           (if (NULL (assoc state state-n-g))
-               (graph-search-aux2 problem open-nodes closed-nodes strategy)
+              explore-node
               (if (check-node-equal (first open-nodes) closed-nodes problem)  ;; COMPROBAR QUE LOS NODOS SEAN IGUALES (FUNCION AUXILIAR)
                   (if (< (node-g (first open-nodes)) (second (assoc state state-n-g)))
-                      (graph-search-aux2 problem open-nodes closed-nodes strategy)
-                      (graph-search-aux problem (rest open-nodes) closed-nodes strategy)
-                  )
-                  (graph-search-aux2 problem open-nodes closed-nodes strategy)))))))
+                      explore-node
+                      (graph-search-aux problem (rest open-nodes) closed-nodes strategy))
+                  explore-node))))))
 
 
 
@@ -694,53 +713,6 @@
 (defun a-star-search (problem)
   (graph-search problem *a-estrella*)
   )
-
-
-  ; ;; TESTS
-  ;
-   (defparameter node-nevers
-      (make-node :state 'Nevers) )
-   (defparameter node-paris
-      (make-node :state 'Paris :parent node-nevers))
-   (defparameter node-nancy
-      (make-node :state 'Nancy :parent node-paris))
-   (defparameter node-reims
-      (make-node :state 'Reims :parent node-nancy))
-   (defparameter node-calais
-      (make-node :state 'Calais :parent node-reims))
-   (defparameter node-calais-2
-      (make-node :state 'Calais :parent node-paris))
-  (defparameter node-marseille-ex6
-     (make-node :state 'Marseille :depth 12 :g 10 :f 20) )
-
-  (defparameter lst-nodes-ex6
-    (expand-node node-marseille-ex6 *travel-fast*))
-
-  (defun node-g-<= (node-1 node-2)
-    (<= (node-g node-1)
-        (node-g node-2)))
-
-  (defparameter *uniform-cost*
-    (make-strategy
-     :name 'uniform-cost
-     :node-compare-p #'node-g-<=))
-
-  (defparameter node-paris-ex7
-    (make-node :state 'Paris :depth 0 :g 0 :f 0) )
-
-  (defparameter node-nancy-ex7
-    (make-node :state 'Nancy :depth 2 :g 50 :f 50) )
-
-  (defparameter nodo-avignon
-    (make-node :state 'Avignon :parent node-marseille-ex6))
-
-
-  (defparameter sol-ex7 (insert-nodes-strategy (list node-paris-ex7 node-nancy-ex7)
-                                               lst-nodes-ex6
-                                               *uniform-cost*))
-
-  (graph-search *travel-cheap* *a-estrella*)
-
 
 ;;
 ;; END: Exercise 9 -- Search algorithm
