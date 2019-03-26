@@ -110,6 +110,7 @@
 (defparameter lst-nodes-ex6
   (expand-node node-marseille-ex6 *travel-fast*))
 
+
 (print lst-nodes-ex6) ; ->
 ;(#S(NODE :STATE TOULOUSE
 ;         :PARENT #S(NODE
@@ -189,8 +190,11 @@
 (defparameter nodo-avignon
   (make-node :state 'Avignon :parent ))
 
+  (defparameter nodo-orleans
+    (make-node :state 'Orleans :depth 2 :g 50 :f 50) )
 
-(defparameter sol-ex7 (insert-nodes-strategy (list node-paris-ex7 node-nancy-ex7)
+
+(defparameter sol-ex7 (insert-nodes-strategy (list node-paris-ex7)
                                              lst-nodes-ex6
                                              *uniform-cost*))
 
