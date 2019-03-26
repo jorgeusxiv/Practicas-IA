@@ -451,7 +451,8 @@
 ;;
 ;;  Input:
 ;;    node:   la node estructura desde donde empezamos.
-;;    problem: la problem estructura con la lista de operadores
+;;    action: action del nodo
+;;    f-h: funcion que nos devuelve la heuristica
 ;;
 ;;  Returns:
 ;;   Una node estructura con el nodo al que se puede llegar a partir de
@@ -534,10 +535,11 @@
 ;;
 
 (defun insert-node (node lst-nodes node-compare-p)
-  (cond ((NULL lst-nodes) (list node))
-        ((funcall node-compare-p node (first lst-nodes))
-         (cons node lst-nodes))
-        (t (cons (first lst-nodes) (insert-node node (rest lst-nodes) node-compare-p)))))
+  (if (NULL lst-nodes)
+      (list node)
+      (if (funcall node-compare-p node (first lst-nodes))
+          (cons node lst-nodes)
+          (cons (first lst-nodes) (insert-node node (rest lst-nodes) node-compare-p)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -574,7 +576,7 @@
 ;;    strategy: la estrategia para la comparación de nodos
 ;;
 ;; Returns:
-;;    Una lista de nodos ordenados (segun node-compare-p) que incluye tanto la lista
+;;    Una lista de nodos ordenados (segun node-compare-p en strategy) que incluye tanto la lista
 ;;    y los nodos a insertar.
 ;;
 ;; Note:
@@ -690,7 +692,7 @@
 ;;     NIL: no hay camino hasta los nodos destino
 ;;     Si hay un camino devuelve el nodo con la ciudad final
 ;;
-;;     Lo que devolvemos es una estructura compleha: el nodo contiene en
+;;     Lo que devolvemos es una estructura compleja: el nodo contiene en
 ;;     "parent" el nodo anterior en el camino, que contiene otro en "parent",
 ;;     y así hasta el nodo inicial.Por lo que devolvemos una compleja estructura
 ;;     anidada que contiene no solo el nodo final sino el camino completo
