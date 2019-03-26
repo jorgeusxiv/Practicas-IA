@@ -392,7 +392,7 @@
   (make-problem
    :states *cities*
    :initial-state *origin*
-   :f-h #'(lambda (state) (f-h-price state *estimate*))
+   :f-h #'(lambda (state) (f-h-time state *estimate*))
    :f-goal-test #'(lambda(node) (f-goal-test node *destination* *mandatory*))
    :f-search-state-equal #'(lambda(node-1 node-2) (f-search-state-equal node-1 node-2 *mandatory*))
    :operators (list
@@ -508,13 +508,30 @@
 ;;;
 ;;;    (3 5 6 8 9 10 11 13 15 16)
 ;;;
-;;;  The functionality is divided in three functions. The first,
-;;;  insert-node, inserts a node in a list keeping it ordered. The
-;;;  second, insert-nodes, insert the nodes of the non-ordered list
-;;;  into the ordered, one by one, so that the two lists are merged.
-;;;  The last function, insert-node-strategy is a simple interface that
-;;;  receives a strategy, extracts from it the comparison function,
-;;;  and calls insert-nodes
+;;;  La funcionalidad está divida en tres funciones. La primera,
+;;;  insert-node,inserta un nodo en una lista manteniendo el orden. La
+;;;  segunda, insert-nodes, inserta los nodos de una lista no ordenada en la
+;;;  ordenada, uno a uno, fusionando las dos listas.
+;;;  La última funcion, insert-node-strategy es simplemente una interfaz
+;;;  recibiendo una estrategia, extrae la funcion de comparación y llama a
+;;;  insert-nodes
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Inserta un nodo en una lista ordenada manteniendo el orden segun
+;; la función de comparación
+;;
+;; Input:
+;;    node: el nodo a insertar en la lista
+;;    lst-nodes: la lista de nodos (ordenada) en la cual los nodos dados se
+;;               insertaran
+;;    node-compare-p: una funcion nodo x nodo --> 2 que devuelve T si
+;;                    primer nodo va antes que el segundo.
+;;
+;; Returns:
+;;    Una lista de nodos ordenados (segun node-compare-p) que incluye tanto la lista
+;;    y el nodo a insertar.
+;;
 
 (defun insert-node (node lst-nodes node-compare-p)
   (cond ((NULL lst-nodes) (list node))
@@ -524,21 +541,20 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Inserts a list of nodes in an ordered list keeping the result list
-;; ordered with respect to the given comparison function
+;; Inserta una lista de nodos en una lista ordenada manteniendo el orden segun
+;; la función de comparación
 ;;
 ;; Input:
-;;    nodes: the (possibly unordered) node list to be inserted in the
-;;           other list
-;;    lst-nodes: the (ordered) list of nodes in which the given nodes
-;;               are to be inserted
-;;    node-compare-p: a function node x node --> 2 that returns T if the
-;;                    first node comes first than the second.
+;;    nodes: la (possiblemente desordenada) lista de nodos a insertar en la
+;;           otra lista
+;;    lst-nodes: la lista de nodos (ordenada) en la cual los nodos dados se
+;;               insertaran
+;;    node-compare-p: una funcion nodo x nodo --> 2 que devuelve T si
+;;                    primer nodo va antes que el segundo.
 ;;
 ;; Returns:
-;;    An ordered list of nodes which includes the nodes of lst-nodes and
-;;    those of the list "nodes@. The list is ordered with respect to the
-;;   criterion node-compare-p.
+;;    Una lista de nodos ordenados (segun node-compare-p) que incluye tanto la lista
+;;    y los nodos a insertar.
 ;;
 (defun insert-nodes (nodes lst-nodes node-compare-p)
   (if (NULL nodes)
@@ -547,27 +563,24 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Inserts a list of nodes in an ordered list keeping the result list
-;; ordered with respect the given strategy
+;; Inserta una lista de nodos en una lista ordenada manteniendo la lista resultado
+;; ordenada con respecto a una estrategia dada
 ;;
 ;; Input:
-;;    nodes: the (possibly unordered) node list to be inserted in the
-;;           other list
-;;    lst-nodes: the (ordered) list of nodes in which the given nodes
-;;               are to be inserted
-;;    strategy: the strategy that gives the criterion for node
-;;              comparison
+;;    nodes: la (possiblemente desordenada) lista de nodos a insertar en la
+;;           otra lista
+;;    lst-nodes: la lista de nodos (ordenada) en la cual los nodos dados se
+;;               insertaran
+;;    strategy: la estrategia para la comparación de nodos
 ;;
 ;; Returns:
-;;    An ordered list of nodes which includes the nodes of lst-nodes and
-;;    those of the list "nodes@. The list is ordered with respect to the
-;;    criterion defined in te strategy.
+;;    Una lista de nodos ordenados (segun node-compare-p) que incluye tanto la lista
+;;    y los nodos a insertar.
 ;;
 ;; Note:
-;;   You will note that this function is just an interface to
-;;   insert-nodes: it allows to call using teh strategy as a
-;;   parameter; all it does is to "extract" the compare function and
-;;   use it to call insert-nodes.
+;;   Vemos que es simplemente una interfaz de insert-nodes: nos permite
+;;   nos permite llamarla insertando la estrategia como parametro. Lo que hace es
+;;   "extraer" la funcion de comparar y la usa para llamar a insert-nodes.
 ;;
 
 (defun insert-nodes-strategy (nodes lst-nodes strategy)
@@ -585,11 +598,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; BEGIN: Exercise 8 -- Definition of the A* strategy
+;; BEGIN: Exercise 8 -- Definición de  A*
 ;;
-;; A strategy is, basically, a comparison function between nodes to tell
-;; us which nodes should be analyzed first. In the A* strategy, the first
-;; node to be analyzed is the one with the smallest value of g+h
+;; Una estrategia es, basicamente, una funcion comparativa entre nodos que nos
+;; indica que nodos deben ser analizados antes. En A*, el primer nodo a analizar
+;; es aquel con menor f (g+h). Por ello, bastará que la función comparativa
+;; compare el valor de las f's de dos nodos.
 ;;
 (defun node-f-<= (node-1 node-2)
   (<= (node-f node-1)
@@ -609,47 +623,39 @@
 ;;;
 ;;;    BEGIN Exercise 9: Search algorithm
 ;;;
-;;;    Searches a path that solves a given problem using a given search
-;;;    strategy. Here too we have two functions: one is a simple
-;;;    interface that extracts the relevant information from the
-;;;    problem and strategy structure, builds an initial open-nodes
-;;;    list (which contains only the starting node defined by the
-;;;    state), and initial closed node list (the empty list), and calls
-;;;    the auxiliary function.
+;;;    Busca un camino que soluciona un problema dado usando una estrategia
+;;;    de búsqueda. Aquí tenemos tres funciones principales: la primera es una
+;;;    simple interfaz que extrae la informacion relevante de las problem y strategy
+;;;    estructura, construyendo una lista de open-nodes (que contiene unicamente)
+;;;    el nodo origen (identificado con el nombre de la ciudad) y una lista de
+;;;    closed-nodes list (una lista vacía) y llama a una función auxiliar.
+
+
+;;;    La primera función auxiliar es una función recursiva que extrae nodos de la
+;;;    lista abierta, los expande, inserta a sus vecinos en la lista abierta y al
+;;;    nodo expandido . Para seguir esta versión del algoritmo necesitamos una
+;;;    segunda función auxilar que será la que "explore" el nodo. Para que el nodo
+;;;    no sea explorado se tienen que cumplir dos condiciones:
 ;;;
-;;;    The auxiliary is a recursive function that extracts nodes from
-;;;    the open list, expands them, inserts the neighbors in the
-;;;    open-list, and the expanded node in the closed list. There is a
-;;;    caveat: with this version of the algorithm, a node can be
-;;;    inserted in the open list more than once. In this case, if we
-;;;    extract a node in the open list and the following two condition old:
-;;;
-;;;     the node we extract is already in the closed list (it has
-;;;     already been expanded)
-;;;       and
-;;;     the path estimation that we have is better than the one we
-;;;     obtain from the node in the open list
-;;;
-;;;     then we ignore the node.
+;;;     el nodo ya esté en la lista de closed-nodes
+;;;     y
+;;;     la estimacion de ese camino que tenemos sea mejor que la que ofrece el nodo
+;;;     a explorar de la lista abierta
+
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;FUNCION AUXILIAR QUE DEVUELVE EL ESTADO Y LA G;;;
+;;;Funcion auxiliar que devuelve el par nombre_ciudad-g;;;
 
 (defun get-state-n-g (lst-nodes)
   (mapcar #'(lambda(x) (list (node-state x) (node-g x))) lst-nodes))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;Funcion que expande un nodo, modificando la lista de abiertos y la de cerrados;;;
+;;; Funcion auxiliar que comprueba si el nodo es igual que alguno que esté en la
+;;; lista de cerrados. Para ello irá comprobando uno a uno hasta que encuentre alguno
+;;; (devolviendo t) o si no encuentra ninguno dara NIL
 
-(defun graph-search-aux2 (problem open-nodes closed-nodes strategy)
-  (let ((new-open-nodes (insert-nodes-strategy (expand-node (first open-nodes) problem) (rest open-nodes) strategy))
-        (new-closed-nodes (cons (first open-nodes) closed-nodes)));;QUIZA SEA CONS O APPEND
-  (graph-search-aux problem new-open-nodes new-closed-nodes strategy)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;FUNCION CHECK-EQUAL-NODE;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun check-node-equal (node closed-nodes problem)
   (if (NULL closed-nodes)
@@ -658,81 +664,81 @@
           t
           (check-node-equal node (rest closed-nodes) problem))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;Funcion que explora un nodo, modificando la lista de abiertos y la de cerrados, llamando
+;;;después de nuevo a graph-search-aux
+
+(defun graph-search-aux2 (problem open-nodes closed-nodes strategy)
+  (let ((new-open-nodes (insert-nodes-strategy (expand-node (first open-nodes) problem) (rest open-nodes) strategy)) ;;Inserta en la lista de abiertos los nodos expandidos
+        (new-closed-nodes (cons (first open-nodes) closed-nodes))) ;;Añade el nodo explorado a la lista de cerrados
+  (graph-search-aux problem new-open-nodes new-closed-nodes strategy)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Auxiliary search function (the one that actually does all the work
+;;  Funcion de busqueda auxliar (que es la cual hace todo el trabajo)
 ;;
 ;;  Input:
-;;    problem: the problem structure from which we get the general
-;;             information (goal testing function, action operatos, etc.
-;;    open-nodes: the list of open nodes, nodes that are waiting to be
-;;                visited
-;;    closed-nodes: the list of closed nodes: nodes that have already
-;;                  been visited
-;;    strategy: the strategy that decide which node is the next extracted
-;;              from the open-nodes list
+;;    problem: la problem estructura de la cual obtenemos la informacion
+;;             (goal testing function, action operatos, etc.
+;;    open-nodes: la lista de open nodes, nodos que esperan ser explorados
+;;    closed-nodes: la lista de closed nodes: nodos ya explorados
+;;    strategy: la estrategia que decide que nodo es el siguiente en ser
+;;              extraido de la lista de abiertos
 ;;
 ;;    Returns:
-;;     NIL: no path to the destination nodes
-;;     If these is a path, returns the node containing the final state.
+;;     NIL: no hay camino hasta los nodos destino
+;;     Si hay un camino devuelve el nodo con la ciudad final
 ;;
-;;     Note that what is returned is quite a complex structure: the
-;;     node contains in "parent" the node that comes before in the
-;;     path, that contains another one in "parents" and so on until
-;;     the initial one. So, what we have here is a rather complex
-;;     nested structure that contains not only the final node but the
-;;     whole path from the starting node to the final.
+;;     Lo que devolvemos es una estructura compleha: el nodo contiene en
+;;     "parent" el nodo anterior en el camino, que contiene otro en "parent",
+;;     y así hasta el nodo inicial.Por lo que devolvemos una compleja estructura
+;;     anidada que contiene no solo el nodo final sino el camino completo
 ;;
 (defun graph-search-aux (problem open-nodes closed-nodes strategy)
+  (let ((state  (node-state (first open-nodes)))
+        (state-n-g (get-state-n-g closed-nodes))
+        (fst-node (first open-nodes)))
   (if (NULL open-nodes)
       NIL
-      (if (funcall (problem-f-goal-test problem) (first open-nodes))
-          (first open-nodes)
-          (let ((state  (node-state (first open-nodes)))
-                (state-n-g (get-state-n-g closed-nodes)))
-
-          (if (NULL (assoc state state-n-g))
-               (graph-search-aux2 problem open-nodes closed-nodes strategy)
-              (if (check-node-equal (first open-nodes) closed-nodes problem)  ;; COMPROBAR QUE LOS NODOS SEAN IGUALES (FUNCION AUXILIAR)
-                  (if (< (node-g (first open-nodes)) (second (assoc state state-n-g)))
+      (if (funcall (problem-f-goal-test problem) fst-node) ;;Si es el nodo final lo devolvemos
+          fst-node
+          (if (NULL (assoc state state-n-g)) ;;Si no está en la lista de cerrados lo exploramos
+              (graph-search-aux2 problem open-nodes closed-nodes strategy)
+              (if (check-node-equal fst-node closed-nodes problem)
+                  (if (< (node-g fst-node) (second (assoc state state-n-g))) ;; Si el nodo ya está en closed-nodes y la estimacion de ese camino que tenemos sea mejor que la actual exploramos
                       (graph-search-aux2 problem open-nodes closed-nodes strategy)
-                      (graph-search-aux problem (rest open-nodes) closed-nodes strategy)
-                  )
+                      (graph-search-aux problem (rest open-nodes) closed-nodes strategy));; Sino omitimos ese nodo y seguimos
                   (graph-search-aux2 problem open-nodes closed-nodes strategy)))))))
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Interface function for the graph search.
+;;  Interfaz de graph search
 ;;
 ;;  Input:
-;;    problem: the problem structure from which we get the general
-;;             information (goal testing function, action operatos,
-;;             starting node, heuristic, etc.
-;;    strategy: the strategy that decide which node is the next extracted
-;;              from the open-nodes list
+;;    problem: la problem estructura de la cual obtenemos la informacion
+;;             (goal testing function, action operatos, etc.
+;;    strategy: la estrategia que decide que nodo es el siguiente en ser
+;;              extraido de la lista de abiertos
 ;;
 ;;    Returns:
-;;     NIL: no path to the destination nodes
-;;     If these is a path, returns the node containing the final state.
+;;     NIL: no hay camino hasta los nodos destino
+;;     Si hay un camino devuelve el nodo con la ciudad final
 ;;
-;;    See the graph-search-aux for the complete structure of the
-;;    returned node.
-;;    This function simply prepares the data for the auxiliary
-;;    function: creates an open list with a single node (the source)
-;;    and an empty closed list.
+;;    Esta función simplemente crea una open-nodes con un unico nodo
+;;    (el source) y  closed-nodes como una lista vacía.
 ;;
+
 (defun graph-search (problem strategy)
+  (let ((h (funcall (problem-f-h problem) (problem-initial-state problem))))
   (graph-search-aux problem (list (make-node :state (problem-initial-state problem)
                                              :parent NIL
                                              :action NIL
                                              :g 0
-                                             :h 0
-                                             :f 0))
-                    '() strategy)
-  )
+                                             :h h
+                                             :f h)) ;;CAMBIAR
+                    '() strategy)))
 
 ;
 ;  A* search is simply a function that solves a problem using the A* strategy
@@ -740,53 +746,6 @@
 (defun a-star-search (problem)
   (graph-search problem *a-estrella*)
   )
-
-
-  ; ;; TESTS
-  ;
-   (defparameter node-nevers
-      (make-node :state 'Nevers) )
-   (defparameter node-paris
-      (make-node :state 'Paris :parent node-nevers))
-   (defparameter node-nancy
-      (make-node :state 'Nancy :parent node-paris))
-   (defparameter node-reims
-      (make-node :state 'Reims :parent node-nancy))
-   (defparameter node-calais
-      (make-node :state 'Calais :parent node-reims))
-   (defparameter node-calais-2
-      (make-node :state 'Calais :parent node-paris))
-  (defparameter node-marseille-ex6
-     (make-node :state 'Marseille :depth 12 :g 10 :f 20) )
-
-  (defparameter lst-nodes-ex6
-    (expand-node node-marseille-ex6 *travel-fast*))
-
-  (defun node-g-<= (node-1 node-2)
-    (<= (node-g node-1)
-        (node-g node-2)))
-
-  (defparameter *uniform-cost*
-    (make-strategy
-     :name 'uniform-cost
-     :node-compare-p #'node-g-<=))
-
-  (defparameter node-paris-ex7
-    (make-node :state 'Paris :depth 0 :g 0 :f 0) )
-
-  (defparameter node-nancy-ex7
-    (make-node :state 'Nancy :depth 2 :g 50 :f 50) )
-
-  (defparameter nodo-avignon
-    (make-node :state 'Avignon :parent node-marseille-ex6))
-
-
-  (defparameter sol-ex7 (insert-nodes-strategy (list node-paris-ex7 node-nancy-ex7)
-                                               lst-nodes-ex6
-                                               *uniform-cost*))
-
-  (graph-search *travel-cheap* *a-estrella*)
-
 
 ;;
 ;; END: Exercise 9 -- Search algorithm
@@ -797,8 +756,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;;    BEGIN Exercise 10: Solution path
-;;;
-;*** solution-path ***
+;;; Solution-path
+;;  Input:
+;;    node: nodo del cual obtener el camino
+;;  Returns:
+;;    El camino explorado
 
 (defun solution-path (node)
   (if (NULL node)
@@ -807,8 +769,11 @@
            (list (node-state node))
            (append (solution-path (node-parent node)) (list (node-state node))))))
 
-;*** action-sequence ***
-; Visualize sequence of actions
+;;; Action-sequence
+;;  Input:
+;;    node: nodo del cual obtener las actions del camino
+;;  Returns:
+;;    Las acciones del nodo explorado
 
 (defun action-sequence (node)
 (if (null node)
