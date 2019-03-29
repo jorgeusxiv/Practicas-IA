@@ -1,0 +1,68 @@
+<div class="notebook">
+
+<div class="nb-cell program" name="p1">
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Ejercicio 1 %%%
+
+duplica([],[]).
+
+duplica([A|L], [A,A|L1]) :- duplica(L,L1).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Ejercicio 2 %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%Concatena%%%
+
+concatena([],L,L).
+concatena([X|L1], L2,[X|L3]):- 
+    concatena(L1,L2,L3).
+
+%%%Invierte%%%
+
+invierte([],[]).
+invierte([H|T],ListaInv):-
+    invierte(T,InvT), concatena(InvT, [H], ListaInv).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Ejercicio 3%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+palindromo(L):-invierte(L,L).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Ejercicio 4%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+ 
+           
+
+</div>
+
+<div class="nb-cell markdown" name="md1">
+Queries 1
+</div>
+
+<div class="nb-cell query" name="q1">
+palindromo(L).
+</div>
+
+<div class="nb-cell query" name="q2">
+
+</div>
+
+<div class="nb-cell query" name="q3">
+
+</div>
+
+<div class="nb-cell query" name="q4">
+
+</div>
+
+<div class="nb-cell markdown" name="md2">
+Queries 2
+</div>
+
+</div>
