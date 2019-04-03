@@ -3,6 +3,7 @@
 <div class="nb-cell program" name="p1">
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Ejercicio 1 %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 duplica([],[]).
 
@@ -34,10 +35,60 @@ palindromo(L):-invierte(L,L).
 %%%Ejercicio 4%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+divide(L,N, L1, L2) :-
+   length(L1, N),
+   append(L1, L2, L).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Ejercicio 5 Preguntar JESSICA%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+aplasta([], []).
+aplasta([L|Ls], L1) :-
+    aplasta(L, First),
+   	aplasta(Ls, Rest),
+    append(First, Rest, L1).
+aplasta(L, [L]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Ejercicio 6%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+primos(N,L):- findall(D, primo(N,D),L).
+
+primo(N,D):-
+    buscar_primo(N,2,D).
+
+buscar_primo(N,D,D):-
+    0 is N mod D.
+buscar_primo(N,D,R):-
+    D &lt; N,
+    (0 is N mod D
+    -&gt;  (N1 is N/D, buscar_primo(N1,D,R))
+    ;   (D - 2 &gt; 0
+        -&gt;  (D1 is D + 2, buscar_primo(N, D1, R))
+        ;   (D2 is D + 1, buscar_primo(N, D2, R))
+    )).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%Ejercicio 7%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%7.1%%%
+
+pack([], []).
+pack([X], [[X]]).
+pack([X, X| L], [[X| Xs]| R]) :-
+    pack([X| L], [Xs| R]).
+pack([X, Y| L], [[X]| R]) :-
+    X \= Y,
+    pack([Y| L], R).
 
 
- 
-           
+    
+    
+    
+
 
 </div>
 
@@ -46,19 +97,20 @@ Queries 1
 </div>
 
 <div class="nb-cell query" name="q1">
-palindromo(L).
+primos(1,D).
+
 </div>
 
 <div class="nb-cell query" name="q2">
-
+invierte([1,2,3],L)
 </div>
 
 <div class="nb-cell query" name="q3">
-
+aplasta([1, [2, [3, 4], 5], [6, 7]], L)
 </div>
 
 <div class="nb-cell query" name="q4">
-
+pack(1,[1,1,2,2,2,2,3,3,3,3,4,4,4],L1).
 </div>
 
 <div class="nb-cell markdown" name="md2">
