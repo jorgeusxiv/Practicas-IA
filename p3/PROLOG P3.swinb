@@ -76,6 +76,15 @@ buscar_primo(N,D,R):-
 
 %%%7.1%%%
 
+cod_primero(X,[],[],[X]).
+cod_primero(X,[X|Ys], Lrem, [X|Xs]):-
+    cod_primero(X,Ys,Lrem,Xs).
+cod_primero(X, [Y|Ys], [Y|Ys], [X]):-
+    dif(X,Y).
+
+%%%7.2%%%
+
+
 pack([], []).
 pack([X], [[X]]).
 pack([X, X| L], [[X| Xs]| R]) :-
@@ -83,13 +92,6 @@ pack([X, X| L], [[X| Xs]| R]) :-
 pack([X, Y| L], [[X]| R]) :-
     X \= Y,
     pack([Y| L], R).
-
-
-    
-    
-    
-
-
 </div>
 
 <div class="nb-cell markdown" name="md1">
@@ -97,8 +99,7 @@ Queries 1
 </div>
 
 <div class="nb-cell query" name="q1">
-primos(1,D).
-
+primos(-3,D).
 </div>
 
 <div class="nb-cell query" name="q2">
@@ -110,7 +111,7 @@ aplasta([1, [2, [3, 4], 5], [6, 7]], L)
 </div>
 
 <div class="nb-cell query" name="q4">
-pack(1,[1,1,2,2,2,2,3,3,3,3,4,4,4],L1).
+cod_all([1,1,2,2,2,2,3,3,3,3,4,4,4],L).
 </div>
 
 <div class="nb-cell markdown" name="md2">

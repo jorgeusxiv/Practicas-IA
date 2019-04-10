@@ -1,0 +1,373 @@
+<div class="notebook open-fullscreen">
+
+<div class="nb-cell markdown" name="md1">
+*EJERCICIO 1*
+
+Implemente un predicado duplica(L,L1), que es cierto si la lista L1 contiene los elementos de L duplicados
+</div>
+
+<div class="nb-cell program" name="p1">
+duplica([],[]).
+
+duplica([A|L], [A,A|L1]) :- duplica(L,L1).
+</div>
+
+<div class="nb-cell markdown" name="md2">
+El caso base es cuando encontramos dos listas vacías. Para entrar en recursión el primer elemento de la primera lista debe ser igual al primer elemento y al segundo de la segunda lista.
+</div>
+
+<div class="nb-cell markdown" name="md3">
+*Ejemplos*
+</div>
+
+<div class="nb-cell query" name="q1">
+duplica([1, 2, 3], [1, 1, 2, 2, 3, 3]).
+</div>
+
+<div class="nb-cell query" name="q2">
+duplica([1, 2, 3], [1, 1, 2, 3, 3]).
+</div>
+
+<div class="nb-cell query" name="q3">
+duplica([1, 2, 3], L1).
+</div>
+
+<div class="nb-cell query" name="q4">
+duplica(L, [1, 2, 3]).
+</div>
+
+<div class="nb-cell markdown" name="md4">
+*EJERCICIO 2*
+
+Implementa el predicado invierte(L, R) que se satisface cuando R contiene los elementos de L en orden inverso. Utiliza el predicado concatena/3 (/n: indica n argumentos):
+```prolog
+concatena([], L, L).
+concatena([X|L1], L2, [X|L3]) :-
+	concatena(L1, L2, L3).
+```
+que se satisface cuando su tercer argumento es el resultado de concatenar las dos listas que se dan como primer y segundo argumento.
+</div>
+
+<div class="nb-cell program" name="p3">
+%%%Concatena%%%
+
+concatena([],L,L).
+concatena([X|L1], L2,[X|L3]):- 
+    concatena(L1,L2,L3).
+
+%%%Invierte%%%
+
+invierte([],[]).
+invierte([H|T],ListaInv):-
+    invierte(T,InvT), concatena(InvT, [H], ListaInv).
+</div>
+
+<div class="nb-cell markdown" name="md5">
+Vamos a invertir la lista mediante recursión. Vamos a ir concatenando los elementos empezando por el final, dando lugar a la lista invertida.
+
+*Ejemplos*
+</div>
+
+<div class="nb-cell query" name="q6">
+concatena([], [1, 2, 3], L).
+</div>
+
+<div class="nb-cell query" name="q7">
+concatena([1, 2, 3], [4, 5], L).
+</div>
+
+<div class="nb-cell query" name="q8">
+invierte([1, 2], L).
+</div>
+
+<div class="nb-cell query" name="q9">
+invierte([], L).
+</div>
+
+<div class="nb-cell query" name="q11">
+invierte([1,2,3,4,5],L).
+</div>
+
+<div class="nb-cell markdown" name="md6">
+*EJERCICIO 3*
+
+Implementar el predicado palindromo(L) que se satisface cuando L es una lista palíndroma, es decir, que se lee de la misma manera de izquierda a derecha y de derecha a izquierda.
+</div>
+
+<div class="nb-cell program" name="p4">
+%%%Concatena%%%
+
+concatena([],L,L).
+concatena([X|L1], L2,[X|L3]):- 
+    concatena(L1,L2,L3).
+
+%%%Invierte%%%
+
+invierte([],[]).
+invierte([H|T],ListaInv):-
+    invierte(T,InvT), concatena(InvT, [H], ListaInv).
+
+%%%Palindromo%%%
+
+palindromo(L):-invierte(L,L).
+</div>
+
+<div class="nb-cell markdown" name="md7">
+Simplemente tenemos que,utilizando la funcion invierte, si L es la inversa de si misma. Si cumple eso será un palíndromo.
+
+*Ejemplos*
+</div>
+
+<div class="nb-cell query" name="q12">
+palindromo([1, 2, 1]).
+</div>
+
+<div class="nb-cell query" name="q13">
+palindromo([1, 2, 1, 1]).
+</div>
+
+<div class="nb-cell query" name="q14">
+palindromo([S,O,B,O,R,N,O,S,S,O,N,R,O,B,O,S]).
+</div>
+
+<div class="nb-cell query" name="q16">
+palindromo(L).
+</div>
+
+<div class="nb-cell markdown" name="md10">
+Lo que hace es que cada vez que pulsamos el boton Next nos da la estructura de todas las posibles listas que son palindromos.
+</div>
+
+<div class="nb-cell markdown" name="md8">
+*EJERCICIO 4*
+
+Implementar el predicado divide(L,N,L1,L2) que se satisface cuando la lista L1 contiene los primeros N elementos de L y L2 contiene el resto.
+</div>
+
+<div class="nb-cell program" name="p5">
+divide(L,N, L1, L2) :-
+   length(L1, N),
+   append(L1, L2, L).
+</div>
+
+<div class="nb-cell markdown" name="md9">
+BLABLABLA
+
+*Ejemplos*
+</div>
+
+<div class="nb-cell query" name="q15">
+divide([1, 2, 3, 4, 5], 3, L1, L2).
+</div>
+
+<div class="nb-cell query" name="q17">
+divide(L, 3, [1, 2, 3], [4, 5, 6]).
+</div>
+
+<div class="nb-cell query" name="q18">
+divide([1,2,3,4,5,6],N,L1,L2).
+</div>
+
+<div class="nb-cell markdown" name="md11">
+Si introducimos esta query con un N indeterminado Prolog nos dará todos sus posibles valores y todas las posibles listas resultantes.
+</div>
+
+<div class="nb-cell markdown" name="md12">
+*EJERCICIO 5*
+
+Implementar el predicado aplasta(L, L1) que se satisface cuando la lista L1 es una versión “aplastada” de la lista L, es decir, si uno de los elementos de L es una lista, esta será remplazada por sus elemento, y así sucesivamente.
+</div>
+
+<div class="nb-cell program" name="p6">
+aplasta(L, [L]):- \+ is_list(L).
+aplasta([], []).
+aplasta([L|Ls], L1) :-
+    aplasta(L, First),
+   	aplasta(Ls, Rest),
+    append(First, Rest, L1).
+</div>
+
+<div class="nb-cell markdown" name="md13">
+BLABLABLA
+
+*Ejemplos*
+</div>
+
+<div class="nb-cell query" name="q19">
+aplasta([1, [2, [3, 4], 5], [6, 7]], L).
+</div>
+
+<div class="nb-cell query" name="q20">
+aplasta(L,[1, 2, 3]).
+</div>
+
+<div class="nb-cell markdown" name="md14">
+No se que hostias pasa
+</div>
+
+<div class="nb-cell markdown" name="md15">
+*EJERCICIO 6*
+Implementar el predicado primos(N, L) que se satisface cuando la lista L contiene los factores primos del número N. Para esta función puede ser útil crear el predicado next_factor(N,F,NF), que genera los
+factores que vamos a probar. Dado el número n y el último factor generado, el predicado se satisface si:
+1. F=2 y NF=3, o
+2. F&lt;sqrt(N) y NF=F+2
+(no hace falta probar los número pares, excepto 2).
+</div>
+
+<div class="nb-cell program" name="p7">
+%%%next_factor%%%
+
+next_factor(_,2,3):- !.
+next_factor(N,F,NF):-
+    F*F &lt; N,!,NF is F + 2.
+next_factor(N,_,N).
+
+%%%Primos/2%%%
+
+primos(N,L):-
+    N &gt; 0,
+    primos(N,L,2).
+
+%%%Primos/3%%%
+
+primos(1,[],_):- !.
+primos(N, [Factor|Resto], Factor):-
+    Div is N // Factor,
+    N =:= Div*Factor,
+    !,
+    primos(Div, Resto, Factor).
+
+primos(N,Resto, Factor):-
+    N &gt; Factor,
+    next_factor(N,Factor, NFactor),
+    primos(N,Resto, NFactor).
+    
+</div>
+
+<div class="nb-cell markdown" name="md16">
+EXPLICACION + EJEMPLOS
+</div>
+
+<div class="nb-cell query" name="q10">
+primos(2,L).
+</div>
+
+<div class="nb-cell query" name="q21">
+primos(6,L).
+</div>
+
+<div class="nb-cell query" name="q22">
+primos(6,[2,3]).
+</div>
+
+<div class="nb-cell query" name="q23">
+primos(6,[3,2]).
+</div>
+
+<div class="nb-cell query" name="q24">
+primos(100,L).
+</div>
+
+<div class="nb-cell query" name="q25">
+primos(300,L).
+</div>
+
+<div class="nb-cell markdown" name="md17">
+EJERCICIO 7
+</div>
+
+<div class="nb-cell markdown" name="md18">
+EJERCICIO 7.1
+
+</div>
+
+<div class="nb-cell program" name="p2">
+
+%%%cod_primero%%%
+
+cod_primero(X,[],[],[X]).
+cod_primero(X,[X|Ys], Lrem, [X|Xs]):-
+    cod_primero(X,Ys,Lrem,Xs).
+cod_primero(X, [Y|Ys], [Y|Ys], [X]):-
+    dif(X,Y).
+
+</div>
+
+<div class="nb-cell markdown" name="md19">
+Explicacion 7.1 + Ejemplos
+</div>
+
+<div class="nb-cell markdown" name="md20">
+EJERCICIO 7.2
+
+</div>
+
+<div class="nb-cell program" name="p8">
+
+%%%cod_primero%%%
+
+cod_primero(X,[],[],[X]).
+cod_primero(X,[X|Ys], Lrem, [X|Xs]):-
+    cod_primero(X,Ys,Lrem,Xs).
+cod_primero(X, [Y|Ys], [Y|Ys], [X]):-
+    dif(X,Y).
+
+%%%cod_all%%%
+
+cod_all([],[]).
+cod_all([X|Resto], [Y|Lfront]):-
+        cod_primero(X,Resto,Lrem,Y),
+        cod_all(Lrem, Lfront).
+</div>
+
+<div class="nb-cell markdown" name="md21">
+EXPLICACION + Ejemplos
+
+</div>
+
+<div class="nb-cell markdown" name="md22">
+EJERCICIO 7.3
+
+</div>
+
+<div class="nb-cell program" name="p9">
+
+%%%cod_primero%%%
+
+cod_primero(X,[],[],[X]).
+cod_primero(X,[X|Ys], Lrem, [X|Xs]):-
+    cod_primero(X,Ys,Lrem,Xs).
+cod_primero(X, [Y|Ys], [Y|Ys], [X]):-
+    dif(X,Y).
+
+%%%cod_all%%%
+
+cod_all([],[]).
+cod_all([X|Resto], [Y|Lfront]):-
+        cod_primero(X,Resto,Lrem,Y),
+        cod_all(Lrem, Lfront).
+
+%%%run_length%%%
+
+run_length(L,L1):-
+    cod_all(L,LAux),
+    transformar(LAux,L1).
+transformar([],[]).
+transformar([[X|Xs]|Ys], [[Len,X] | Resto]):-
+    length([X|Xs],Len),
+    transformar(Ys,Resto).
+</div>
+
+<div class="nb-cell markdown" name="md23">
+Explicacion + ejemplos
+</div>
+
+<div class="nb-cell query" name="q5">
+run_length([1,1,1,2,2,3,3,3,3,3,3,4],L).
+</div>
+
+<div class="nb-cell markdown" name="md24">
+EJERCICIO 8
+</div>
+
+</div>
